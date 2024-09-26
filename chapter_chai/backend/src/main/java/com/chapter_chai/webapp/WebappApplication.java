@@ -1,13 +1,13 @@
-package com.chapter_chai.chapter_chai_initial_site_build;
+package com.chapter_chai.webapp;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ChapterChaiInitialSiteBuildApplication {
+public class WebappApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ChapterChaiInitialSiteBuildApplication.class, args);
+		SpringApplication.run(WebappApplication.class, args);
 	}
 
 }
