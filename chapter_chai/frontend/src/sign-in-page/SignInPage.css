@@ -1,0 +1,73 @@
+body {
+    background-color: #fff1e4;
+}
+
+.sign-in-page {
+    height: 100svh;
+    width: 100svw;
+    margin: 0 auto;
+
+    background-image: url("chap_chai.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
+
+#submit-button {
+    height: 15%;
+    width: 80%;
+    
+    color: white;
+    background-color: #2c2c2c;
+    border-radius: 10px;
+    border: none;
+
+    transition: background-color 0.3s ease;
+}
+#submit-button:active {
+    background-color: #fff1e4;
+}
+
+.sign-in-content {
+    margin-top: 10%;
+}
+
+#title {
+    font-size: 3rem;
+}
+
+#slogan {
+    font-size: 2rem;
+}
+
+#title-card {
+    color: #d3a680;
+}
+
+.form {
+    background-color: #f0cdb1;
+    height: 20%;
+    width: fit-content;
+    align-items: center;
+    padding: 15%;
+    padding-top: 1%;
+    border-radius: 25px;
+    margin-left: 13%;
+}
+
+.enter-fields {
+    display: block;
+    margin-bottom: 10%;
+}
+.enter-text {
+    margin-bottom: 5%;
+}
+
+#username-field, #password-field {
+    border-radius: 4px;
+    border: 1px solid #d3a680;
+}
