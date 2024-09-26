@@ -53,7 +53,6 @@
 					<workingDirectory>../frontend</workingDirectory>
 				</configuration>
 				<executions>
-					<!-- Install Node.js -->
 					<execution>
 						<id>install node and npm</id>
 						<goals>
@@ -65,7 +64,6 @@
 						</configuration>
 					</execution>
 					
-					<!-- Run npm install -->
 					<execution>
 						<id>npm install</id>
 						<goals>
@@ -76,7 +74,6 @@
 						</configuration>
 					</execution>
 
-					<!-- Run npm build (build React app) -->
 					<execution>
 						<id>npm run build</id>
 						<goals>
