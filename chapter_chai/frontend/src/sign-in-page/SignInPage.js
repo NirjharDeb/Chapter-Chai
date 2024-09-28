@@ -48,9 +48,9 @@ function SignInPage() {
                             onChange={(e) => setPassword(e.target.value)}
                         />
                     </div>
-                    <button id='submit-button' onClick={handleSubmit}>Sign In</button>
+                    <button id='submit-button' onClick={handleSubmit}>{sign_in ? "Sign In" : "Create Account"}</button>
                     <div>
-                        <a href="https://google.com">New User?</a>
+                        <button id='toggle-button' onClick={() => setSignIn(!sign_in)}>{sign_in ? "New User?" : "Returning User?"}</button>
                     </div>
                 </div>
             </div>

@@ -32,6 +32,16 @@ body {
     background-color: #fff1e4;
 }
 
+#toggle-button {
+    background: none;
+    border: none;
+    text-decoration: underline;
+    color: darkblue;
+}
+#toggle-button:hover {
+    cursor: pointer;
+}
+
 .sign-in-content {
     margin-top: 10%;
 }
