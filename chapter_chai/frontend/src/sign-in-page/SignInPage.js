@@ -3,8 +3,10 @@ import './SignInPage.css';
 
 function SignInPage() {
 
-    const [sign_in, setSignIn] = useState(true); // toggle for sign-in/create account
-    // TODO: toggle button and link values based on sign_in
+    // toggle for sign-in/create account
+    // true: signing in
+    // false: creating account
+    const [sign_in, setSignIn] = useState(true);
 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -16,7 +18,7 @@ function SignInPage() {
         console.log("username:", username)
         console.log("password:", password)
 
-        // TODO: also send whether its sign-in or create account?
+        // TODO: also send whether its sign-in?
         if (sign_in) {
             console.log("signing in");
         } else {
