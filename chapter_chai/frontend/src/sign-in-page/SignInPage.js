@@ -45,6 +45,7 @@ function SignInPage() {
                     <div className='enter-fields'>
                         <p className='enter-text'>Password</p>
                         <input id='password-field'
+                        type='password'
                             placeholder='Password'
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
