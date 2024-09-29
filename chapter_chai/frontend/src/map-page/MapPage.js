@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { APIProvider, Map, ColorScheme, useMapsLibrary } from "@vis.gl/react-google-maps";
+import { APIProvider, Map, ColorScheme } from "@vis.gl/react-google-maps";
 
 function MapPage() {
 
@@ -11,7 +11,7 @@ function MapPage() {
     const [lat, setLat] = useState(33.77705);
     const [lng, setLng] = useState(-84.39896);
     
-    // map if need be
+    // map if need be ?
     // const map = useMap();
 
     const handleSearch = () => {
@@ -36,8 +36,8 @@ function MapPage() {
                 <input id="lat" type="number" onChange={(e) => setLat_temp(parseFloat(e.target.value))}/>
                 <input id="lng" type="number" onChange={(e) => setLng_temp(parseFloat(e.target.value))}/>
                 <button id="search-button" onClick={handleSearch}>Search</button>
-            </div>        
-            <APIProvider apiKey={'AIzaSyBeuiQ_LwAf8N0zXgI56UPyDxqq7M2Vwn8'} onLoad={() => console.log('Maps API has loaded.')}>
+            </div>
+            <APIProvider apiKey={process.env.REACT_APP_GOOGLE_API_KEY} onLoad={() => console.log('Maps API has loaded.')}>
                 <Map
                     colorScheme={ColorScheme.LIGHT}
                     style={{width: '100vw', height: '100vh'}}
