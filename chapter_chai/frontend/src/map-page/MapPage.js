@@ -9,8 +9,10 @@ function MapPage() {
     const [lng_temp, setLng_temp] = useState(0);
 
     // values used for map
-    const [lat, setLat] = useState(33.77705);
-    const [lng, setLng] = useState(-84.39896);
+    const center = {
+        lat: 33.77705,
+        lng: -84.39896,
+    };
     
     const [map, setMap] = useState(null);
     const [placesService, setPlacesService] = useState(null);
@@ -24,10 +26,6 @@ function MapPage() {
     }, [map]);
 
     const handleSearch = () => {
-        // TODO: only set if valid
-        setLat(lat_temp);
-        setLng(lng_temp);
-
         // const request = {
         //     textQuery: "Bookstores",
         //     fields: ["displayName", "formattedAddress", "businessStatus", "googleMapsURI", "reviews"],
@@ -54,9 +52,9 @@ function MapPage() {
             <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY} libraries={["places"]}>
                 <GoogleMap
                     mapContainerStyle={{width: "100vw", height: "100vh"}}
-                    center={{lat: lat, lng: lng}}
+                    center={center}
                     zoom={15}
-                    onLoad={(mapInstance) => setLat_temp(mapInstance)}
+                    onLoad={(mapInstance) => setMap(mapInstance)}
                 />
             </LoadScript>
 
