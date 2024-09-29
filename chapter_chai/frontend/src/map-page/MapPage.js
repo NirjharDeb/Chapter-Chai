@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { APIProvider, Map, ColorScheme } from "@vis.gl/react-google-maps";
+import React, { useEffect, useRef, useState } from "react";
+// import { APIProvider, Map, ColorScheme } from "@vis.gl/react-google-maps";
+import { GoogleMap, LoadScript } from '@react-google-maps/api';
 
 function MapPage() {
 
@@ -11,8 +12,16 @@ function MapPage() {
     const [lat, setLat] = useState(33.77705);
     const [lng, setLng] = useState(-84.39896);
     
-    // map if need be ?
-    // const map = useMap();
+    const [map, setMap] = useState(null);
+    const [placesService, setPlacesService] = useState(null);
+    const [places, setPlaces] = useState([]);
+
+    useEffect(() => {
+        if (map) {
+            const service = new window.google.maps.places.PlacesService(map);
+            setPlacesService(service);
+        }
+    }, [map]);
 
     const handleSearch = () => {
         // TODO: only set if valid
@@ -27,17 +36,42 @@ function MapPage() {
         //     language: "en-US",
         //     maxResultCount: 10
         // };
-        // const { places } = await useMapsLibrary("places"); // TODO
+        // placesService.textSearch(request, (results, status) => {
+        //     if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+        //         setPlaces(results);
+        //     }
+        // });
     };
 
     return (
-        <div>
+        <>
             <div id="TEMP-UI-SEARCH_REPLACE-WITH-ACTUAL-UI">
                 <input id="lat" type="number" onChange={(e) => setLat_temp(parseFloat(e.target.value))}/>
                 <input id="lng" type="number" onChange={(e) => setLng_temp(parseFloat(e.target.value))}/>
                 <button id="search-button" onClick={handleSearch}>Search</button>
             </div>
-            <APIProvider apiKey={process.env.REACT_APP_GOOGLE_API_KEY} onLoad={() => console.log('Maps API has loaded.')}>
+
+            <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY} libraries={["places"]}>
+                <GoogleMap
+                    mapContainerStyle={{width: "100vw", height: "100vh"}}
+                    center={{lat: lat, lng: lng}}
+                    zoom={15}
+                    onLoad={(mapInstance) => setLat_temp(mapInstance)}
+                />
+            </LoadScript>
+
+            {/* <div>
+                <h3>Places Found:</h3>
+                <ul>
+                    {places.map((place, index) => (
+                        <li key={index}>
+                            {place.name} - {place.geometry.location.lat()}, {place.geometry.location.lng()}
+                        </li>
+                    ))}
+                </ul>
+            </div> */}
+
+            {/* <APIProvider apiKey={process.env.REACT_APP_GOOGLE_API_KEY} onLoad={() => console.log('Maps API has loaded.')}>
                 <Map
                     colorScheme={ColorScheme.LIGHT}
                     style={{width: '100vw', height: '100vh'}}
@@ -47,8 +81,8 @@ function MapPage() {
                     center={{lat: lat, lng: lng}}
                     
                 />
-            </APIProvider>
-        </div>
+            </APIProvider> */}
+        </>
     );
 }
 // TODO: make it pan-able or not interactable
