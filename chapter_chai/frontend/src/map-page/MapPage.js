@@ -1,12 +1,13 @@
-import React, { useEffect, useRef, useState } from "react";
-// import { APIProvider, Map, ColorScheme } from "@vis.gl/react-google-maps";
+import React, { useEffect, useState } from "react";
 import { GoogleMap, LoadScript } from '@react-google-maps/api';
+
+const libraries = ["places"];
 
 function MapPage() {
 
     // values from inputs
-    const [lat_temp, setLat_temp] = useState(0);
-    const [lng_temp, setLng_temp] = useState(0);
+    const [lat, setLat] = useState(33.77705);
+    const [lng, setLng] = useState(-84.39896);
 
     // values used for map
     const center = {
@@ -25,31 +26,32 @@ function MapPage() {
         }
     }, [map]);
 
-    const handleSearch = () => {
-        // const request = {
-        //     textQuery: "Bookstores",
-        //     fields: ["displayName", "formattedAddress", "businessStatus", "googleMapsURI", "reviews"],
-        //     locationRestriction: {location: {lat: lat, lng: lng}, radius: 16093.4},
-        //     isOpenNow: true,
-        //     language: "en-US",
-        //     maxResultCount: 10
-        // };
-        // placesService.textSearch(request, (results, status) => {
-        //     if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-        //         setPlaces(results);
-        //     }
-        // });
+    const handleSearch = async () => {
+        if (!placesService) return;
+
+        const request = {
+            keyword: "Bookstores",
+            location: {lat: lat, lng: lng},
+            radius: 16093.4 // 10 mi
+        };
+        placesService.nearbySearch(request, (results, status) => {
+            if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+                setPlaces(results);
+            } else if (status === window.google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+                console.log("No results!");
+            } else {
+                console.error("Places API request failed with status:", status);
+            }
+        });
     };
 
     return (
         <>
-            <div id="TEMP-UI-SEARCH_REPLACE-WITH-ACTUAL-UI">
-                <input id="lat" type="number" onChange={(e) => setLat_temp(parseFloat(e.target.value))}/>
-                <input id="lng" type="number" onChange={(e) => setLng_temp(parseFloat(e.target.value))}/>
-                <button id="search-button" onClick={handleSearch}>Search</button>
-            </div>
-
-            <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY} libraries={["places"]}>
+            <LoadScript
+                loadingElement={<div>Loading...</div>}
+                googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}
+                libraries={libraries}
+            >
                 <GoogleMap
                     mapContainerStyle={{width: "100vw", height: "100vh"}}
                     center={center}
@@ -58,28 +60,22 @@ function MapPage() {
                 />
             </LoadScript>
 
-            {/* <div>
+            <div id="TEMP-UI-SEARCH_REPLACE-WITH-ACTUAL-UI">
+                <input id="lat" type="number" defaultValue={33.77705} onChange={(e) => setLat(parseFloat(e.target.value))}/>
+                <input id="lng" type="number" defaultValue={-84.39896} onChange={(e) => setLng(parseFloat(e.target.value))}/>
+                <button id="search-button" onClick={handleSearch}>Search</button>
+            </div>
+
+            <div>
                 <h3>Places Found:</h3>
                 <ul>
                     {places.map((place, index) => (
                         <li key={index}>
-                            {place.name} - {place.geometry.location.lat()}, {place.geometry.location.lng()}
+                            <b>{place.name}</b><br/>{place.geometry.location.lat()}, {place.geometry.location.lng()}
                         </li>
                     ))}
                 </ul>
-            </div> */}
-
-            {/* <APIProvider apiKey={process.env.REACT_APP_GOOGLE_API_KEY} onLoad={() => console.log('Maps API has loaded.')}>
-                <Map
-                    colorScheme={ColorScheme.LIGHT}
-                    style={{width: '100vw', height: '100vh'}}
-                    gestureHandling={'none'}
-                    disableDefaultUI={true}
-                    zoom={15}
-                    center={{lat: lat, lng: lng}}
-                    
-                />
-            </APIProvider> */}
+            </div>
         </>
     );
 }
