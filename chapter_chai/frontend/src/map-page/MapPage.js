@@ -19,15 +19,15 @@ function MapPage() {
         setLat(lat_temp);
         setLng(lng_temp);
 
-        const request = {
-            textQuery: "Bookstores",
-            fields: ["displayName", "formattedAddress", "businessStatus", "googleMapsURI", "reviews"],
-            locationRestriction: {location: {lat: lat, lng: lng}, radius: 16093.4},
-            isOpenNow: true,
-            language: "en-US",
-            maxResultCount: 10
-        };
-        const { places } = await useMapsLibrary("places"); // TODO
+        // const request = {
+        //     textQuery: "Bookstores",
+        //     fields: ["displayName", "formattedAddress", "businessStatus", "googleMapsURI", "reviews"],
+        //     locationRestriction: {location: {lat: lat, lng: lng}, radius: 16093.4},
+        //     isOpenNow: true,
+        //     language: "en-US",
+        //     maxResultCount: 10
+        // };
+        // const { places } = await useMapsLibrary("places"); // TODO
     };
 
     return (
