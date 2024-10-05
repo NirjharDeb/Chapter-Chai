@@ -1,89 +1,60 @@
 import React, { useEffect, useState, useRef } from "react";
-import { GoogleMap, LoadScript, Autocomplete} from '@react-google-maps/api';
+import { GoogleMap, LoadScript, Autocomplete } from '@react-google-maps/api';
 
 const libraries = ["places"];
 
 function MapPage() {
 
-
-    /*changed made by mariam:
-        1. Change of useEffect --> PAN TO NEW LOCATION
-        2. use AUTOCOMPLETE -- takes in a search input from user 
-            //replaces the manual input of lat/long
-        3. Change of centering map location -- changed from hardcoded value
-
-    */
-    
-
     // values from inputs
     const [lat, setLat] = useState(33.77705); //default latitude
     const [lng, setLng] = useState(-84.39896); //default longitude 
-
-
     const [map, setMap] = useState(null);
     const autocompleteref = useRef(null);
-
-       //deleted values: 
-    // const [placesService, setPlacesService] = useState(null);
-    // const [places, setPlaces] = useState([]);
-   
+    const [placesService, setPlacesService] = useState(null);
+    const [places, setPlaces] = useState([]);
 
     // center should dynamically change based upon specified geolocation or user input
     const center = {
         lat: lat, 
         lng: lng,
     };
-    
 
-    // useEffect(() => {
-    //     if (map) {
-    //         const service = new window.google.maps.places.PlacesService(map);
-    //         setPlacesService(service);
-    //     }
-    // }, [map]);
-
-         
-    
-
-
-    //allows the map to pan to wherever lat/lng was updated to -- just better to look at 
+    //allows the map to pan to wherever lat/lng was updated to
     useEffect(() => {
         if (map) {
-            map.panTo({lat, lng});
+            map.panTo({ lat, lng });
+            const service = new window.google.maps.places.PlacesService(map);
+            setPlacesService(service);
         }
     }, [map, lat, lng]);
 
-
-
-
-
     const onPlaceChange = () => {
         const place = autocompleteref.current.getPlace();
-        if(place && place.geometry) {
-            setLat(place.geometry.location.lat()); //update lat from extracted lat of place
-            setLng(place.geometry.location.lng()); //update lng from extracted lng of place
+        if (place && place.geometry) {
+            setLat(place.geometry.location.lat());
+            setLng(place.geometry.location.lng());
         }
     };
 
-
-    // const handleSearch = async () => {
-    //     if (!placesService) return;
-
-    //     const request = {
-    //         keyword: "Bookstores",
-    //         location: {lat: lat, lng: lng},
-    //         radius: 16093.4 // 10 mi
-    //     };
-    //     placesService.nearbySearch(request, (results, status) => {
-    //         if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-    //             setPlaces(results);
-    //         } else if (status === window.google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
-    //             console.log("No results!");
-    //         } else {
-    //             console.error("Places API request failed with status:", status);
-    //         }
-    //     });
-    // };
+    // Function to search for bookstores nearby
+    const handleSearch = async () => {
+        if (!placesService) return;
+        
+        const request = {
+            keyword: "Bookstores",
+            location: { lat: lat, lng: lng },
+            radius: 16093.4 // 10 mi
+        };
+        placesService.nearbySearch(request, (results, status) => {
+            if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+                setPlaces(results);
+            } else if (status === window.google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+                console.log("No results!");
+            } else {
+                console.error("Places API request failed with status:", status);
+            }
+        });
+    };
 
     return (
         <>
@@ -93,56 +64,78 @@ function MapPage() {
                 libraries={libraries}
             >
                 <GoogleMap
-                    mapContainerStyle={{width: "100vw", height: "100vh"}}
+                    mapContainerStyle={{ width: "calc(100vw - 320px)", height: "100vh", marginLeft: "320px" }} // Adjusted the map width to leave space for results tab
                     center={center}
                     zoom={15}
                     onLoad={(mapInstance) => setMap(mapInstance)}
+                    options={{
+                        mapTypeControl: false, // This disables terrain and satellite options
+                        streetViewControl: false, // Optionally, disable Street View as well if you don't need it
+                        fullscreenControl: false, // Optionally, disable the fullscreen button
+                    }}
                 />
 
-                <div id="search-panel" style = {{
-                    position: "absolute", 
-                    top: "20px", 
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                    zIndex: 1,
-                    width: "250px",
-                    boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
+                {/* Results Tab with Search Bar */}
+                <div style={{
+                    position: "absolute",
+                    top: "0",
+                    left: "0",
+                    width: "320px",
+                    height: "100vh",
+                    overflowY: "scroll",
                     backgroundColor: "#fff",
-                    borderRadius: "4px",
-                    border: "1px solid #dcdcdc",
-                    display: "flex",
-                    alignItems: "center",
-                    padding: "5px"
+                    boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
+                    padding: "10px",
+                    zIndex: 2,
+                    borderRadius: "4px"
+                }}>
+                    <div style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        marginBottom: "10px"
                     }}>
-                    <Autocomplete
-                        onLoad={(autocomplete) => (autocompleteref.current = autocomplete)}
-                        onPlaceChanged={onPlaceChange}
-                    >
-                        <input
-                            type = "text"
-                            placeholder = "   SEARCH   "
-                            className = "search-input"
-                            style = {{padding: "8px", width: "100%", fontsize: "14px", border: "none", outline: "none", borderReadius: "4px", backgroundColor: "transparent", whiteSpace: "nowrap", overflow:"hidden", textOverflow: "ellipsis"}}
-                        />
-                    
-                    </Autocomplete>
+                        {/* Search Bar */}
+                        <Autocomplete
+                            onLoad={(autocomplete) => (autocompleteref.current = autocomplete)}
+                            onPlaceChanged={onPlaceChange}
+                        >
+                            <input
+                                type="text"
+                                placeholder="   SEARCH   "
+                                className="search-input"
+                                style={{ padding: "8px", width: "100%", fontSize: "14px", border: "1px solid #dcdcdc", borderRadius: "4px", marginBottom: "10px" }}
+                            />
+                        </Autocomplete>
+                        <button onClick={handleSearch} style={{
+                            padding: "8px",
+                            backgroundColor: "#4285F4",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: "4px",
+                            cursor: "pointer"
+                        }}>
+                            Search
+                        </button>
+                    </div>
+
+                    {/* Places Found */}
+                    <h3 style={{ textAlign: "center", marginBottom: "10px" }}>Places Found</h3>
+                    {places.length > 0 ? (
+                        <ul style={{ listStyleType: "none", padding: "0" }}>
+                            {places.map((place, index) => (
+                                <li key={index} style={{ marginBottom: "10px", borderBottom: "1px solid #ddd", paddingBottom: "10px" }}>
+                                    <b>{place.name}</b><br />
+                                    {place.geometry.location.lat()}, {place.geometry.location.lng()}
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p>No places found.</p>
+                    )}
                 </div>
-
             </LoadScript>
-
-{/*            
-            <div>
-                <h3>Places Found:</h3>
-                <ul>
-                    {places.map((place, index) => (
-                        <li key={index}>
-                            <b>{place.name}</b><br/>{place.geometry.location.lat()}, {place.geometry.location.lng()}
-                        </li>
-                    ))}
-                </ul>
-            </div> */}
         </>
     );
 }
-// TODO: make it pan-able or not interactable
+
 export default MapPage;
