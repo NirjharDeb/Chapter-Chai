@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { GoogleMap, LoadScript } from '@react-google-maps/api';
+import React, { useEffect, useState, useRef } from "react";
+import { GoogleMap, LoadScript} from '@react-google-maps/api';
 
 const libraries = ["places"];
 
@@ -19,12 +19,21 @@ function MapPage() {
     const [placesService, setPlacesService] = useState(null);
     const [places, setPlaces] = useState([]);
 
+    // useEffect(() => {
+    //     if (map) {
+    //         const service = new window.google.maps.places.PlacesService(map);
+    //         setPlacesService(service);
+    //     }
+    // }, [map]);
+
+
+    //allows the map to pan to wherever lat/lng was updated to -- just better to look at 
     useEffect(() => {
         if (map) {
-            const service = new window.google.maps.places.PlacesService(map);
-            setPlacesService(service);
+            map.panTo({lat, lng});
         }
-    }, [map]);
+    }, [map, lat, lng]);
+
 
     const handleSearch = async () => {
         if (!placesService) return;
