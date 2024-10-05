@@ -12,6 +12,8 @@ function MapPage() {
     const autocompleteref = useRef(null);
     const [placesService, setPlacesService] = useState(null);
     const [places, setPlaces] = useState([]);
+    const [bookstores, setBookstores] = useState([]);
+    const [cafes, setCafes] = useState([]);
 
     // center should dynamically change based upon specified geolocation or user input
     const center = {
@@ -37,17 +39,31 @@ function MapPage() {
     };
 
     // Function to search for bookstores nearby
-    const handleSearch = async () => {
+    const handleSearch = (lat, lng) => {
         if (!placesService) return;
-        
-        const request = {
+        const location = new window.google.maps.LatLng(lat,lng);
+        const requestBookstores = {
             keyword: "Bookstores",
-            location: { lat: lat, lng: lng },
+            location,
             radius: 16093.4 // 10 mi
         };
-        placesService.nearbySearch(request, (results, status) => {
+        placesService.nearbySearch(requestBookstores, (results, status) => {
             if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-                setPlaces(results);
+                setBookstores(results);
+            } else if (status === window.google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+                console.log("No results!");
+            } else {
+                console.error("Places API request failed with status:", status);
+            }
+        });
+        const requestCafes = {
+            keyword: "Cafe",
+            location,
+            radius: 16093.4 // 10 mi
+        };
+        placesService.nearbySearch(requestCafes, (results, status) => {
+            if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+                setCafes(results);
             } else if (status === window.google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
                 console.log("No results!");
             } else {
@@ -56,11 +72,14 @@ function MapPage() {
         });
     };
 
+            
+
     return (
         <>
             <LoadScript
                 loadingElement={<div>Loading...</div>}
-                googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}
+                //googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}
+                googleMapsApiKey={"AIzaSyDac5ECgqd6Bn6C67JwumLnly5ZGm0101g"}
                 libraries={libraries}
             >
                 <GoogleMap
