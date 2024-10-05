@@ -108,8 +108,7 @@ function MapPage() {
         <>
             <LoadScript
                 loadingElement={<div>Loading...</div>}
-                //googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}
-                googleMapsApiKey={"AIzaSyDac5ECgqd6Bn6C67JwumLnly5ZGm0101g"}
+                googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}
                 libraries={libraries}
             >
                 <GoogleMap
@@ -167,6 +166,7 @@ function MapPage() {
                         </button>
                     </div>
 
+                    {/* only commented out to test implementation */}
                     {/* Places Found
                     <h3 style={{ textAlign: "center", marginBottom: "10px" }}>Places Found</h3>
                     {places.length > 0 ? (
@@ -182,6 +182,7 @@ function MapPage() {
                         <p>No places found.</p>
                     )} */}
 
+                    {/* Mariam's original implementation */}
                     <div className="places" style = {{
                         position:"absolute",
                         bottom: "10px",
