@@ -5,21 +5,45 @@ const libraries = ["places"];
 
 function MapPage() {
 
+
+    /*changed made by mariam:
+        1. Change of useEffect --> PAN TO NEW LOCATION
+            //before: map wouldn't pan to the new updated location
+            //after: now the map changes alongisde the location updates (see the handling function below)
+        2. use AUTOCOMPLETE -- takes in a search input from user 
+            //replaces the manual input of lat/long
+            //uses the autocomplete of the google maps api
+            //allows user to 
+        3. Change of centering map location -- changed from hardcoded value
+        4. Changed SEARCH
+            --allowed for ability to search both bookstores and cafes
+            --this created the following: 
+                --const [bookstores, setBookstores] = useState([]);
+                --const [cafes, setCafes] = useState([]);
+        5. Created a layer popup to showcase the results
+            -- will be changed and fine tuned by Nirjhar
+    */
+    
+
     // values from inputs
     const [lat, setLat] = useState(33.77705); //default latitude
     const [lng, setLng] = useState(-84.39896); //default longitude 
     const [map, setMap] = useState(null);
     const autocompleteref = useRef(null);
-    const [placesService, setPlacesService] = useState(null);
-    const [places, setPlaces] = useState([]);
 
+    //handling search:
+    const [placesService, setPlacesService] = useState(null);
+    const [bookstores, setBookstores] = useState([]);
+    const [cafes, setCafes] = useState([]);
+
+   
     // center should dynamically change based upon specified geolocation or user input
     const center = {
         lat: lat, 
         lng: lng,
     };
 
-    //allows the map to pan to wherever lat/lng was updated to
+    //allows the map to pan to wherever lat/lng was updated to -- just better to look at 
     useEffect(() => {
         if (map) {
             map.panTo({ lat, lng });
@@ -28,26 +52,50 @@ function MapPage() {
         }
     }, [map, lat, lng]);
 
+
+    //Initialize PlaceServices
+    useEffect(() => {
+        if (map) {
+            const service = new window.google.maps.places.PlacesService(map);
+            setPlacesService(service);
+        }
+    }, [map]);
+
+
     const onPlaceChange = () => {
         const place = autocompleteref.current.getPlace();
-        if (place && place.geometry) {
-            setLat(place.geometry.location.lat());
-            setLng(place.geometry.location.lng());
+        if(place && place.geometry) {
+            setLat(place.geometry.location.lat()); //update lat from extracted lat of place
+            setLng(place.geometry.location.lng()); //update lng from extracted lng of place
+            handleSearch(place.geometry.location.lat(),place.geometry.location.lng()); //call handleSearch
         }
     };
 
-    // Function to search for bookstores nearby
-    const handleSearch = async () => {
+    const handleSearch = (lat, lng) => {
         if (!placesService) return;
-        
-        const request = {
+        const location = new window.google.maps.LatLng(lat,lng);
+        const requestBookstores = {
             keyword: "Bookstores",
-            location: { lat: lat, lng: lng },
+            location,
             radius: 16093.4 // 10 mi
         };
-        placesService.nearbySearch(request, (results, status) => {
+        placesService.nearbySearch(requestBookstores, (results, status) => {
             if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-                setPlaces(results);
+                setBookstores(results);
+            } else if (status === window.google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+                console.log("No results!");
+            } else {
+                console.error("Places API request failed with status:", status);
+            }
+        });
+        const requestCafes = {
+            keyword: "Cafe",
+            location,
+            radius: 16093.4 // 10 mi
+        };
+        placesService.nearbySearch(requestCafes, (results, status) => {
+            if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+                setCafes(results);
             } else if (status === window.google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
                 console.log("No results!");
             } else {
@@ -118,7 +166,8 @@ function MapPage() {
                         </button>
                     </div>
 
-                    {/* Places Found */}
+                    {/* only commented out to test implementation */}
+                    {/* Places Found
                     <h3 style={{ textAlign: "center", marginBottom: "10px" }}>Places Found</h3>
                     {places.length > 0 ? (
                         <ul style={{ listStyleType: "none", padding: "0" }}>
@@ -131,7 +180,30 @@ function MapPage() {
                         </ul>
                     ) : (
                         <p>No places found.</p>
-                    )}
+                    )} */}
+
+                    {/* Mariam's original implementation */}
+                    <div className="places" style = {{
+                        position:"absolute",
+                        bottom: "10px",
+                        left: "10px",
+                        backgroundColor: "white",
+                        padding: "10px",
+                        maxHeight: "1000px",
+                        overflowY: "scroll",
+                        zIndex: 1,
+                    }}> 
+                    <h3> Bookstores &amp; Cafes Nearby </h3>
+                    <u1>
+                        {bookstores.map((place, index) => (
+                            <li key={index}><strong>Bookstore:</strong> {place.name} </li>
+                        ))}
+                        {cafes.map((place, index) => (
+                            <li key={index}><strong>Cafe:</strong> {place.name} </li>
+                        ))}
+                    </u1>
+                </div>
+
                 </div>
             </LoadScript>
         </>
