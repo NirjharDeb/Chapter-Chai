@@ -167,7 +167,7 @@ function MapPage() {
                         </button>
                     </div>
 
-                    {/* Places Found */}
+                    {/* Places Found
                     <h3 style={{ textAlign: "center", marginBottom: "10px" }}>Places Found</h3>
                     {places.length > 0 ? (
                         <ul style={{ listStyleType: "none", padding: "0" }}>
@@ -180,7 +180,29 @@ function MapPage() {
                         </ul>
                     ) : (
                         <p>No places found.</p>
-                    )}
+                    )} */}
+
+                    <div className="places" style = {{
+                        position:"absolute",
+                        bottom: "10px",
+                        left: "10px",
+                        backgroundColor: "white",
+                        padding: "10px",
+                        maxHeight: "1000px",
+                        overflowY: "scroll",
+                        zIndex: 1,
+                    }}> 
+                    <h3> Bookstores &amp; Cafes Nearby </h3>
+                    <u1>
+                        {bookstores.map((place, index) => (
+                            <li key={index}><strong>Bookstore:</strong> {place.name} </li>
+                        ))}
+                        {cafes.map((place, index) => (
+                            <li key={index}><strong>Cafe:</strong> {place.name} </li>
+                        ))}
+                    </u1>
+                </div>
+
                 </div>
             </LoadScript>
         </>
