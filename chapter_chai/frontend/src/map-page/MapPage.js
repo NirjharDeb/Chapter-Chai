@@ -1,23 +1,39 @@
 import React, { useEffect, useState, useRef } from "react";
-import { GoogleMap, LoadScript} from '@react-google-maps/api';
+import { GoogleMap, LoadScript, Autocomplete} from '@react-google-maps/api';
 
 const libraries = ["places"];
 
 function MapPage() {
 
-    // values from inputs
-    const [lat, setLat] = useState(33.77705);
-    const [lng, setLng] = useState(-84.39896);
 
-    // values used for map
+    /*changed made by mariam:
+        1. Change of useEffect --> PAN TO NEW LOCATION
+        2. use AUTOCOMPLETE -- takes in a search input from user 
+            //replaces the manual input of lat/long
+        3. Change of centering map location -- changed from hardcoded value
+
+    */
+    
+
+    // values from inputs
+    const [lat, setLat] = useState(33.77705); //default latitude
+    const [lng, setLng] = useState(-84.39896); //default longitude 
+
+
+    const [map, setMap] = useState(null);
+    const autocompleteref = useRef(null);
+
+       //deleted values: 
+    // const [placesService, setPlacesService] = useState(null);
+    // const [places, setPlaces] = useState([]);
+   
+
+    // center should dynamically change based upon specified geolocation or user input
     const center = {
-        lat: 33.77705,
-        lng: -84.39896,
+        lat: lat, 
+        lng: lng,
     };
     
-    const [map, setMap] = useState(null);
-    const [placesService, setPlacesService] = useState(null);
-    const [places, setPlaces] = useState([]);
 
     // useEffect(() => {
     //     if (map) {
@@ -25,6 +41,9 @@ function MapPage() {
     //         setPlacesService(service);
     //     }
     // }, [map]);
+
+         
+    
 
 
     //allows the map to pan to wherever lat/lng was updated to -- just better to look at 
@@ -35,24 +54,36 @@ function MapPage() {
     }, [map, lat, lng]);
 
 
-    const handleSearch = async () => {
-        if (!placesService) return;
 
-        const request = {
-            keyword: "Bookstores",
-            location: {lat: lat, lng: lng},
-            radius: 16093.4 // 10 mi
-        };
-        placesService.nearbySearch(request, (results, status) => {
-            if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-                setPlaces(results);
-            } else if (status === window.google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
-                console.log("No results!");
-            } else {
-                console.error("Places API request failed with status:", status);
-            }
-        });
+
+
+    const onPlaceChange = () => {
+        const place = autocompleteref.current.getPlace();
+        if(place && place.geometry) {
+            setLat(place.geometry.location.lat()); //update lat from extracted lat of place
+            setLng(place.geometry.location.lng()); //update lng from extracted lng of place
+        }
     };
+
+
+    // const handleSearch = async () => {
+    //     if (!placesService) return;
+
+    //     const request = {
+    //         keyword: "Bookstores",
+    //         location: {lat: lat, lng: lng},
+    //         radius: 16093.4 // 10 mi
+    //     };
+    //     placesService.nearbySearch(request, (results, status) => {
+    //         if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+    //             setPlaces(results);
+    //         } else if (status === window.google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+    //             console.log("No results!");
+    //         } else {
+    //             console.error("Places API request failed with status:", status);
+    //         }
+    //     });
+    // };
 
     return (
         <>
@@ -67,14 +98,39 @@ function MapPage() {
                     zoom={15}
                     onLoad={(mapInstance) => setMap(mapInstance)}
                 />
+
+                <div id="search-panel" style = {{
+                    position: "absolute", 
+                    top: "20px", 
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    zIndex: 1,
+                    width: "250px",
+                    boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
+                    backgroundColor: "#fff",
+                    borderRadius: "4px",
+                    border: "1px solid #dcdcdc",
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "5px"
+                    }}>
+                    <Autocomplete
+                        onLoad={(autocomplete) => (autocompleteref.current = autocomplete)}
+                        onPlaceChanged={onPlaceChange}
+                    >
+                        <input
+                            type = "text"
+                            placeholder = "   SEARCH   "
+                            className = "search-input"
+                            style = {{padding: "8px", width: "100%", fontsize: "14px", border: "none", outline: "none", borderReadius: "4px", backgroundColor: "transparent", whiteSpace: "nowrap", overflow:"hidden", textOverflow: "ellipsis"}}
+                        />
+                    
+                    </Autocomplete>
+                </div>
+
             </LoadScript>
 
-            <div id="TEMP-UI-SEARCH_REPLACE-WITH-ACTUAL-UI">
-                <input id="lat" type="number" defaultValue={33.77705} onChange={(e) => setLat(parseFloat(e.target.value))}/>
-                <input id="lng" type="number" defaultValue={-84.39896} onChange={(e) => setLng(parseFloat(e.target.value))}/>
-                <button id="search-button" onClick={handleSearch}>Search</button>
-            </div>
-
+{/*            
             <div>
                 <h3>Places Found:</h3>
                 <ul>
@@ -84,7 +140,7 @@ function MapPage() {
                         </li>
                     ))}
                 </ul>
-            </div>
+            </div> */}
         </>
     );
 }
