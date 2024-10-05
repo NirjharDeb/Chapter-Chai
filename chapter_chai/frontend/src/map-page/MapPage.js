@@ -92,35 +92,57 @@ function MapPage() {
                 googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}
                 libraries={libraries}
             >
-                <div style={{ display: 'flex', height: '100vh' }}>
-                    {/* Left side panel */}
-                    <div style={{ width: '300px', overflowY: 'auto', padding: '10px', background: '#f4f4f4' }}>
-                        <h3>Places Found:</h3>
-                        <input id="lat" type="number" defaultValue={33.77705} onChange={(e) => setLat(parseFloat(e.target.value))} style={{ width: '100%', marginBottom: '10px' }} />
-                        <input id="lng" type="number" defaultValue={-84.39896} onChange={(e) => setLng(parseFloat(e.target.value))} style={{ width: '100%', marginBottom: '10px' }} />
-                        <button id="search-button" onClick={handleSearch} style={{ width: '100%', marginBottom: '20px' }}>Search</button>
-                        <ul>
-                            {places.map((place, index) => (
-                                <li key={index}>
-                                    <b>{place.name}</b><br/>{place.geometry.location.lat()}, {place.geometry.location.lng()}
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
+                <GoogleMap
+                    mapContainerStyle={{width: "100vw", height: "100vh"}}
+                    center={center}
+                    zoom={15}
+                    onLoad={(mapInstance) => setMap(mapInstance)}
+                />
 
-                    {/* Right side map */}
-                    <div style={{ flexGrow: 1 }}>
-                        <GoogleMap
-                            mapContainerStyle={{width: "100%", height: "100%"}}
-                            center={center}
-                            zoom={15}
-                            onLoad={(mapInstance) => setMap(mapInstance)}
+                <div id="search-panel" style = {{
+                    position: "absolute", 
+                    top: "20px", 
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    zIndex: 1,
+                    width: "250px",
+                    boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
+                    backgroundColor: "#fff",
+                    borderRadius: "4px",
+                    border: "1px solid #dcdcdc",
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "5px"
+                    }}>
+                    <Autocomplete
+                        onLoad={(autocomplete) => (autocompleteref.current = autocomplete)}
+                        onPlaceChanged={onPlaceChange}
+                    >
+                        <input
+                            type = "text"
+                            placeholder = "   SEARCH   "
+                            className = "search-input"
+                            style = {{padding: "8px", width: "100%", fontsize: "14px", border: "none", outline: "none", borderReadius: "4px", backgroundColor: "transparent", whiteSpace: "nowrap", overflow:"hidden", textOverflow: "ellipsis"}}
                         />
-                    </div>
+                    
+                    </Autocomplete>
                 </div>
+
             </LoadScript>
+
+{/*            
+            <div>
+                <h3>Places Found:</h3>
+                <ul>
+                    {places.map((place, index) => (
+                        <li key={index}>
+                            <b>{place.name}</b><br/>{place.geometry.location.lat()}, {place.geometry.location.lng()}
+                        </li>
+                    ))}
+                </ul>
+            </div> */}
         </>
     );
 }
-
+// TODO: make it pan-able or not interactable
 export default MapPage;
