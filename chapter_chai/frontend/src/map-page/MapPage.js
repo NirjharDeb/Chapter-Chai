@@ -109,35 +109,7 @@ function MapPage() {
                 googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}
                 libraries={libraries}
             >
-                <GoogleMap
-                    mapContainerStyle={{ width: "calc(100vw - 320px)", height: "100vh", marginLeft: "320px" }} // Adjusted the map width to leave space for results tab
-                    center={center}
-                    zoom={15}
-                    onLoad={(mapInstance) => setMap(mapInstance)}
-                    options={{
-                        mapTypeControl: false, // This disables terrain and satellite options
-                        streetViewControl: false, // Optionally, disable Street View as well if you don't need it
-                        fullscreenControl: false, // Optionally, disable the fullscreen button
-                    }}
-                />
 
-                {/* Results Tab with Search Bar */}
-                <div style={{
-                    position: "absolute",
-                    top: "0",
-                    left: "0",
-                    width: "320px",
-                    height: "100vh",
-                    overflowY: "scroll",
-                    backgroundColor: "#C7AE93",
-                    boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
-                    padding: "10px",
-                    zIndex: 2,
-                    borderRadius: "4px"
-                }}>
-
-                
-            >
                 <div style={{ display: "flex", width: "100vw", height: "100vh", overflow: "hidden" }}>
 
                     <div style={{
@@ -151,29 +123,6 @@ function MapPage() {
                         borderRadius: "4px",
                         boxSizing: "border-box"
                     }}>
-
-                        {/* Search Bar */}
-                        <Autocomplete
-                            onLoad={(autocomplete) => (autocompleteref.current = autocomplete)}
-                            onPlaceChanged={onPlaceChange}
-                        >
-                            <input
-                                type="text"
-                                placeholder="   SEARCH   "
-                                className="search-input"
-                                style={{ padding: "8px", width: "95%", fontSize: "14px", border: "1px solid #dcdcdc", borderRadius: "4px", marginBottom: "10px"}}
-                            />
-                        </Autocomplete>
-                        <button onClick={handleSearch} style={{
-                            padding: "8px",
-                            backgroundColor: "#CA6D5E",
-                            color: "#FDFAF9",
-                            border: "none",
-                            borderRadius: "4px",
-                            cursor: "pointer"
-                        }}>
-                            Search
-                        </button>
 
                         {selectedPlace ? (
                             // Place Details Tab
