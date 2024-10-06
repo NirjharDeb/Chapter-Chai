@@ -60,7 +60,7 @@ function MapPage() {
         <>
             <LoadScript
                 loadingElement={<div>Loading...</div>}
-                googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}
+                googleMapsApiKey="AIzaSyAQzSw091TkcMWpTUrwP54WJH2jN-6pzKo"
                 libraries={libraries}
             >
                 <GoogleMap
@@ -83,7 +83,7 @@ function MapPage() {
                     width: "320px",
                     height: "100vh",
                     overflowY: "scroll",
-                    backgroundColor: "#fff",
+                    backgroundColor: "#C7AE93",
                     boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
                     padding: "10px",
                     zIndex: 2,
@@ -103,13 +103,13 @@ function MapPage() {
                                 type="text"
                                 placeholder="   SEARCH   "
                                 className="search-input"
-                                style={{ padding: "8px", width: "100%", fontSize: "14px", border: "1px solid #dcdcdc", borderRadius: "4px", marginBottom: "10px" }}
+                                style={{ padding: "8px", width: "95%", fontSize: "14px", border: "1px solid #dcdcdc", borderRadius: "4px", marginBottom: "10px"}}
                             />
                         </Autocomplete>
                         <button onClick={handleSearch} style={{
                             padding: "8px",
-                            backgroundColor: "#4285F4",
-                            color: "#fff",
+                            backgroundColor: "#CA6D5E",
+                            color: "#FDFAF9",
                             border: "none",
                             borderRadius: "4px",
                             cursor: "pointer"

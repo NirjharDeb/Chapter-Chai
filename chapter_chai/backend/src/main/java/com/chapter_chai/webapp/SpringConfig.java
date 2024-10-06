@@ -5,10 +5,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 @Configuration
 public class SpringConfig {
-
     @Bean
     public SecurityFilterChain security_filter_chain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(registry->{
