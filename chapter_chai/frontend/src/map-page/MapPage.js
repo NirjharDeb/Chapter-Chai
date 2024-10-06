@@ -22,25 +22,21 @@ function MapPage() {
         minRating: 0
     });
 
-    const [originalCenter, setOriginalCenter] = useState({lat,lng});
+    const [originalCenter, setOriginalCenter] = useState({ lat, lng });
     const [zoom, setZoom] = useState(15);
-
 
     const [isSettingsDropdownOpen, setIsSettingsDropdownOpen] = useState(false);
 
     const center = {
-        lat: lat, 
+        lat: lat,
         lng: lng,
     };
 
     useEffect(() => {
-        if (map) {
-            map.panTo({ lat, lng });
-            const service = new window.google.maps.places.PlacesService(map);
-            setPlacesService(service);
+        if (map && placesService) {
             handleSearch(lat, lng);
         }
-    }, [map, lat, lng]);
+    }, [map, lat, lng, filters]);
 
     const onPlaceChange = () => {
         const place = autocompleteref.current.getPlace();
@@ -53,7 +49,7 @@ function MapPage() {
     const handleSearch = (lat, lng) => {
         if (!placesService) return;
         const location = new window.google.maps.LatLng(lat, lng);
-        
+
         const searchPlaces = (keyword, setPlaces) => {
             const request = {
                 keyword: keyword,
@@ -64,7 +60,6 @@ function MapPage() {
             };
             placesService.nearbySearch(request, (results, status) => {
                 if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-                    // Filter results by rating
                     const filteredResults = results.filter(place => place.rating >= filters.minRating);
                     setPlaces(filteredResults);
                 } else if (status === window.google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
@@ -97,7 +92,7 @@ function MapPage() {
     };
 
     const showPlaceDetails = (placeId) => {
-        setOriginalCenter({lat, lng});
+        setOriginalCenter({ lat, lng });
         setZoom(zoom);
 
         placesService.getDetails({ placeId }, (place, status) => {
@@ -109,13 +104,12 @@ function MapPage() {
                     price: place.price_level,
                     url: place.url,
                 });
-                if(map) {
+                if (map) {
                     setLat(place.geometry.location.lat());
                     setLng(place.geometry.location.lng());
                     setTimeout(() => {
                         map.setZoom(18);
                     }, 300);
-
                 }
             } else {
                 console.error("Failed to fetch place details:", status);
@@ -125,21 +119,13 @@ function MapPage() {
 
     const goBackToResults = () => {
         setSelectedPlace(null);
-        if(map) {
+        if (map) {
             setLat(originalCenter.lat);
             setLng(originalCenter.lng);
             setTimeout(() => {
                 map.setZoom(zoom);
             }, 300);
         }
-    };
-
-    const toggleFilter = (filterType) => {
-        setFilters(prevFilters => ({
-            ...prevFilters,
-            [filterType]: !prevFilters[filterType]
-        }));
-        handleSearch(lat, lng);
     };
 
     const handlePriceChange = (event) => {
@@ -149,7 +135,6 @@ function MapPage() {
             minPrice,
             maxPrice
         }));
-        handleSearch(lat, lng);
     };
 
     const handleRatingChange = (event) => {
@@ -157,7 +142,6 @@ function MapPage() {
             ...prevFilters,
             minRating: Number(event.target.value)
         }));
-        handleSearch(lat, lng);
     };
 
     const toggleSettingsDropdown = () => {
@@ -183,23 +167,21 @@ function MapPage() {
                         boxSizing: "border-box"
                     }}>
                         {selectedPlace ? (
-                            // Place Details Tab
                             <div style={{ padding: "10px" }}>
-
-                                <button onClick={goBackToResults} style={{ 
+                                <button onClick={goBackToResults} style={{
                                     padding: "8px", marginBottom: "10px", backgroundColor: "#4285F4", color: "#fff", border: "none", borderRadius: "4px",
                                     transition: "background-color 0.3s ease", cursor: "pointer"
                                 }}
-                                onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#357AE8"}
-                                onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#4285F4"}>
-
+                                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#357AE8"}
+                                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#4285F4"}>
+                                    Go Back
                                 </button>
                                 <h2>{selectedPlace.name}</h2>
                                 {selectedPlace.photo && <img src={selectedPlace.photo} alt={selectedPlace.name} style={{ width: "100%", height: "auto", borderRadius: "8px" }} />}
                                 <h3>Rating: {selectedPlace.rating ? `${selectedPlace.rating} / 5` : "No rating available"}</h3>
                                 <h3>Price Level: {selectedPlace.price ? '💰'.repeat(selectedPlace.price) : "Price not available"}</h3>
                                 {selectedPlace.url && (
-                                    <a href={selectedPlace.url} target="_blank" rel="noopener noreferrer" style={{ 
+                                    <a href={selectedPlace.url} target="_blank" rel="noopener noreferrer" style={{
                                         display: "inline-block", marginTop: "10px", padding: "8px 16px", backgroundColor: "#34A853", color: "#fff", borderRadius: "4px",
                                         textDecoration: "none", transition: "background-color 0.3s ease", cursor: "pointer"
                                     }}>
@@ -208,7 +190,6 @@ function MapPage() {
                                 )}
                             </div>
                         ) : (
-                            // Results Tab
                             <div>
                                 <Autocomplete
                                     onLoad={(autocomplete) => (autocompleteref.current = autocomplete)}
@@ -221,55 +202,10 @@ function MapPage() {
                                         style={{ padding: "8px", width: "100%", fontSize: "14px", border: "1px solid #dcdcdc", borderRadius: "4px", marginBottom: "10px", boxSizing: "border-box" }}
                                     />
                                 </Autocomplete>
-                                <button onClick={() => handleSearch(lat, lng)} style={{
-                                    padding: "8px",
-                                    backgroundColor: "#CA6D5E",
-                                    color: "#fff",
-                                    border: "none",
-                                    borderRadius: "4px",
-                                    cursor: "pointer",
-                                    boxSizing: "border-box",
-                                    width: "100%",
-                                    transition: "background-color 0.3s ease"
-                                }}>
-                                    Search
-                                </button>
 
                                 {/* Filters Section */}
                                 <div style={{ marginTop: "20px", marginBottom: "20px" }}>
                                     <h3>Filters</h3>
-                                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
-                                        <button
-                                            onClick={() => toggleFilter('bookstores')}
-                                            style={{
-                                                padding: "8px",
-                                                backgroundColor: filters.bookstores ? "#4285F4" : "#f1f1f1",
-                                                color: filters.bookstores ? "#fff" : "#000",
-                                                border: "1px solid #ddd",
-                                                borderRadius: "4px",
-                                                cursor: "pointer",
-                                                width: "48%",
-                                                transition: "background-color 0.3s ease"
-                                            }}
-                                        >
-                                            Bookstores
-                                        </button>
-                                        <button
-                                            onClick={() => toggleFilter('cafes')}
-                                            style={{
-                                                padding: "8px",
-                                                backgroundColor: filters.cafes ? "#4285F4" : "#f1f1f1",
-                                                color: filters.cafes ? "#fff" : "#000",
-                                                border: "1px solid #ddd",
-                                                borderRadius: "4px",
-                                                cursor: "pointer",
-                                                width: "48%",
-                                                transition: "background-color 0.3s ease"
-                                            }}
-                                        >
-                                            Cafes
-                                        </button>
-                                    </div>
                                     <div style={{ marginBottom: "10px" }}>
                                         <label htmlFor="price-range">Price Range:</label>
                                         <select id="price-range" onChange={handlePriceChange} value={`${filters.minPrice},${filters.maxPrice}`} style={{ width: "100%", padding: "5px" }}>
@@ -314,10 +250,8 @@ function MapPage() {
                                                         backgroundColor: "#FDFAF9",
                                                     }}
                                                         onClick={() => showPlaceDetails(place.place_id)}
-
                                                         onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"}
                                                         onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#FDFAF9"}
-
                                                     >
                                                         <strong>{place.name}</strong>
                                                         <br />
@@ -346,11 +280,8 @@ function MapPage() {
                                                         backgroundColor: "#FDFAF9",
                                                     }}
                                                         onClick={() => showPlaceDetails(place.place_id)}
-
-
                                                         onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"}
                                                         onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#FDFAF9"}
-
                                                     >
                                                         <strong>{place.name}</strong>
                                                         <br />
@@ -372,7 +303,10 @@ function MapPage() {
                             mapContainerStyle={{ width: "100%", height: "100%" }}
                             center={center}
                             zoom={15}
-                            onLoad={(mapInstance) => setMap(mapInstance)}
+                            onLoad={(mapInstance) => {
+                                setMap(mapInstance);
+                                setPlacesService(new window.google.maps.places.PlacesService(mapInstance));
+                            }}
                             options={{
                                 mapTypeControl: false,
                                 streetViewControl: false,
