@@ -106,7 +106,7 @@ function MapPage() {
             <LoadScript
 
                 loadingElement={<div>Loading...</div>}
-                googleMapsApiKey="AIzaSyAQzSw091TkcMWpTUrwP54WJH2jN-6pzKo"
+                googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}
                 libraries={libraries}
             >
 
