@@ -147,7 +147,7 @@ function MapPage() {
                         width: "320px",
                         height: "100vh",
                         overflowY: "auto",
-                        backgroundColor: "#fff",
+                        backgroundColor: "#C7AE93",
                         boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
                         padding: "10px",
                         zIndex: 2,
@@ -157,11 +157,17 @@ function MapPage() {
                         {selectedPlace ? (
                             // Place Details Tab
                             <div style={{ padding: "10px" }}>
+
                                 <button onClick={goBackToResults} style={{ 
                                     padding: "8px", marginBottom: "10px", backgroundColor: "#4285F4", color: "#fff", border: "none", borderRadius: "4px",
                                     transition: "background-color 0.3s ease", cursor: "pointer"
+
                                 }}>
                                     Back to Results
+                                }}
+                                onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#357AE8"}
+                                onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#4285F4"}>
+
                                 </button>
                                 <h2>{selectedPlace.name}</h2>
                                 {selectedPlace.photo && <img src={selectedPlace.photo} alt={selectedPlace.name} style={{ width: "100%", height: "auto", borderRadius: "8px" }} />}
@@ -192,7 +198,7 @@ function MapPage() {
                                 </Autocomplete>
                                 <button onClick={() => handleSearch(lat, lng)} style={{
                                     padding: "8px",
-                                    backgroundColor: "#4285F4",
+                                    backgroundColor: "#CA6D5E",
                                     color: "#fff",
                                     border: "none",
                                     borderRadius: "4px",
@@ -280,9 +286,13 @@ function MapPage() {
                                                     <li key={index} style={{
                                                         padding: "8px", borderBottom: "1px solid #ddd", cursor: "pointer",
                                                         transition: "background-color 0.3s ease",
-                                                        backgroundColor: "white",
+                                                        backgroundColor: "#FDFAF9",
                                                     }}
                                                         onClick={() => showPlaceDetails(place.place_id)}
+
+                                                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"}
+                                                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#FDFAF9"}
+
                                                     >
                                                         <strong>{place.name}</strong>
                                                         <br />
@@ -308,9 +318,14 @@ function MapPage() {
                                                     <li key={index} style={{
                                                         padding: "8px", borderBottom: "1px solid #ddd", cursor: "pointer",
                                                         transition: "background-color 0.3s ease",
-                                                        backgroundColor: "white",
+                                                        backgroundColor: "#FDFAF9",
                                                     }}
                                                         onClick={() => showPlaceDetails(place.place_id)}
+
+
+                                                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"}
+                                                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#FDFAF9"}
+
                                                     >
                                                         <strong>{place.name}</strong>
                                                         <br />
