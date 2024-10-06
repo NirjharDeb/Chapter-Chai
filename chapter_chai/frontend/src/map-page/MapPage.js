@@ -22,6 +22,11 @@ function MapPage() {
         minRating: 0
     });
 
+    const[originalCenter, setOriginalCenter] = useState({lat, lng});
+    const [zoom, setZoom] = useState(15); //default zoom level
+    setOriginalCenter({lat, lng});
+    setZoom(zoom);
+
     const center = {
         lat: lat, 
         lng: lng,
@@ -82,6 +87,7 @@ function MapPage() {
         }
     };
 
+
     const toggleBookstoreDropdown = () => {
         setIsBookstoreDropdownOpen(!isBookstoreDropdownOpen);
     };
@@ -100,6 +106,12 @@ function MapPage() {
                     price: place.price_level,
                     url: place.url,
                 });
+                
+                if(map) {
+                    setLat(place.geometry.location.lat());
+                    setLng(place.geometry.location.lng());
+                    map.setZoom(18);
+                }
             } else {
                 console.error("Failed to fetch place details:", status);
             }
@@ -108,6 +120,11 @@ function MapPage() {
 
     const goBackToResults = () => {
         setSelectedPlace(null);
+        if(map) {
+            setLat(originalCenter.lat);
+            setLng(originalCenter.lng);
+            map.setZoom(zoom);
+        }
     };
 
     const toggleFilter = (filterType) => {
