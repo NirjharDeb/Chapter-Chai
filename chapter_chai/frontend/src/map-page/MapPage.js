@@ -13,6 +13,7 @@ function MapPage() {
     const [cafes, setCafes] = useState([]);
     const [isBookstoreDropdownOpen, setIsBookstoreDropdownOpen] = useState(false);
     const [isCafeDropdownOpen, setIsCafeDropdownOpen] = useState(false);
+    const [selectedPlace, setSelectedPlace] = useState(null);  // For showing the details tab
 
     const center = {
         lat: lat, 
@@ -27,13 +28,6 @@ function MapPage() {
             handleSearch(lat, lng);  // Trigger search when map location changes
         }
     }, [map, lat, lng]);
-
-    useEffect(() => {
-        if (map) {
-            const service = new window.google.maps.places.PlacesService(map);
-            setPlacesService(service);
-        }
-    }, [map]);
 
     const onPlaceChange = () => {
         const place = autocompleteref.current.getPlace();
@@ -88,15 +82,32 @@ function MapPage() {
         setIsCafeDropdownOpen(!isCafeDropdownOpen);
     };
 
+    const showPlaceDetails = (placeId) => {
+        // Fetch place details using placeId
+        placesService.getDetails({ placeId }, (place, status) => {
+            if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+                setSelectedPlace({
+                    name: place.name,
+                    photo: place.photos ? place.photos[0].getUrl() : null,
+                    rating: place.rating, // Show only the overall rating out of 5
+                });
+            } else {
+                console.error("Failed to fetch place details:", status);
+            }
+        });
+    };
+
+    const goBackToResults = () => {
+        setSelectedPlace(null);
+    };
+
     return (
         <>
             <LoadScript
-                loadingElement={<div>Loading...</div>}
                 googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}
                 libraries={libraries}
             >
                 <div style={{ display: "flex", width: "100vw", height: "100vh", overflow: "hidden" }}>
-                    {/* Results Tab - Now moved to the left */}
                     <div style={{
                         width: "320px",
                         height: "100vh",
@@ -108,109 +119,99 @@ function MapPage() {
                         borderRadius: "4px",
                         boxSizing: "border-box"
                     }}>
-                        <div style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            marginBottom: "10px"
-                        }}>
-                            <Autocomplete
-                                onLoad={(autocomplete) => (autocompleteref.current = autocomplete)}
-                                onPlaceChanged={onPlaceChange}
-                            >
-                                <input
-                                    type="text"
-                                    placeholder="   SEARCH   "
-                                    className="search-input"
-                                    style={{ 
-                                        padding: "8px", 
-                                        width: "100%", 
-                                        fontSize: "14px", 
-                                        border: "1px solid #dcdcdc", 
-                                        borderRadius: "4px", 
-                                        marginBottom: "10px", 
-                                        boxSizing: "border-box" 
-                                    }}
-                                />
-                            </Autocomplete>
-                            <button onClick={() => handleSearch(lat, lng)} style={{
-                                padding: "8px",
-                                backgroundColor: "#4285F4",
-                                color: "#fff",
-                                border: "none",
-                                borderRadius: "4px",
-                                cursor: "pointer",
-                                boxSizing: "border-box",
-                                width: "100%"
-                            }}>
-                                Search
-                            </button>
-                        </div>
-
-                        <div className="places" style={{ maxHeight: "calc(100vh - 150px)", overflowY: "auto", padding: "10px", boxSizing: "border-box" }}>
-                            <h3> Nearby Places </h3>
-                            
-                            <div>
-                                <button onClick={toggleBookstoreDropdown} style={{
-                                    padding: "8px", 
-                                    width: "100%", 
-                                    textAlign: "left", 
-                                    backgroundColor: "#f1f1f1", 
-                                    border: "1px solid #ddd", 
-                                    borderRadius: "4px", 
-                                    marginBottom: "10px", 
-                                    cursor: "pointer",
-                                    boxSizing: "border-box"
-                                }}>
-                                    Bookstores ({bookstores.length})
+                        {selectedPlace ? (
+                            // Place Details Tab
+                            <div style={{ padding: "10px" }}>
+                                <button onClick={goBackToResults} style={{ padding: "8px", marginBottom: "10px", backgroundColor: "#4285F4", color: "#fff", border: "none", borderRadius: "4px" }}>
+                                    Back to Results
                                 </button>
-                                {isBookstoreDropdownOpen && (
-                                    <ul style={{ listStyleType: "none", padding: "0", marginBottom: "10px", boxSizing: "border-box" }}>
-                                        {bookstores.map((place, index) => (
-                                            <li key={index} style={{
-                                                padding: "8px", 
-                                                borderBottom: "1px solid #ddd",
-                                                boxSizing: "border-box"
-                                            }}>
-                                                <strong>{place.name}</strong>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                )}
+                                <h2>{selectedPlace.name}</h2>
+                                {selectedPlace.photo && <img src={selectedPlace.photo} alt={selectedPlace.name} style={{ width: "100%", height: "auto", borderRadius: "8px" }} />}
+                                <h3>Rating: {selectedPlace.rating ? `${selectedPlace.rating} / 5` : "No rating available"}</h3>
                             </div>
-
+                        ) : (
+                            // Results Tab
                             <div>
-                                <button onClick={toggleCafeDropdown} style={{
-                                    padding: "8px", 
-                                    width: "100%", 
-                                    textAlign: "left", 
-                                    backgroundColor: "#f1f1f1", 
-                                    border: "1px solid #ddd", 
-                                    borderRadius: "4px", 
-                                    marginBottom: "10px", 
+                                <Autocomplete
+                                    onLoad={(autocomplete) => (autocompleteref.current = autocomplete)}
+                                    onPlaceChanged={onPlaceChange}
+                                >
+                                    <input
+                                        type="text"
+                                        placeholder="   SEARCH   "
+                                        className="search-input"
+                                        style={{ padding: "8px", width: "100%", fontSize: "14px", border: "1px solid #dcdcdc", borderRadius: "4px", marginBottom: "10px", boxSizing: "border-box" }}
+                                    />
+                                </Autocomplete>
+                                <button onClick={() => handleSearch(lat, lng)} style={{
+                                    padding: "8px",
+                                    backgroundColor: "#4285F4",
+                                    color: "#fff",
+                                    border: "none",
+                                    borderRadius: "4px",
                                     cursor: "pointer",
-                                    boxSizing: "border-box"
+                                    boxSizing: "border-box",
+                                    width: "100%"
                                 }}>
-                                    Cafes ({cafes.length})
+                                    Search
                                 </button>
-                                {isCafeDropdownOpen && (
-                                    <ul style={{ listStyleType: "none", padding: "0", marginBottom: "10px", boxSizing: "border-box" }}>
-                                        {cafes.map((place, index) => (
-                                            <li key={index} style={{
-                                                padding: "8px", 
-                                                borderBottom: "1px solid #ddd",
-                                                boxSizing: "border-box"
-                                            }}>
-                                                <strong>{place.name}</strong>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                )}
-                            </div>
-                        </div>
 
+                                <div style={{ maxHeight: "calc(100vh - 150px)", overflowY: "auto", padding: "10px", boxSizing: "border-box" }}>
+                                    <h3>Nearby Places</h3>
+                                    <div>
+                                        <button onClick={toggleBookstoreDropdown} style={{
+                                            padding: "8px", width: "100%", textAlign: "left", backgroundColor: "#f1f1f1", border: "1px solid #ddd", borderRadius: "4px", marginBottom: "10px", cursor: "pointer", boxSizing: "border-box"
+                                        }}>
+                                            Bookstores ({bookstores.length})
+                                        </button>
+                                        {isBookstoreDropdownOpen && (
+                                            <ul style={{ listStyleType: "none", padding: "0", marginBottom: "10px", boxSizing: "border-box" }}>
+                                                {bookstores.map((place, index) => (
+                                                    <li key={index} style={{
+                                                        padding: "8px", borderBottom: "1px solid #ddd", cursor: "pointer",
+                                                        transition: "background-color 0.3s ease",
+                                                        backgroundColor: "white",
+                                                    }}
+                                                        onClick={() => showPlaceDetails(place.place_id)}
+                                                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"}
+                                                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = "white"}
+                                                    >
+                                                        <strong>{place.name}</strong>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                    </div>
+
+                                    <div>
+                                        <button onClick={toggleCafeDropdown} style={{
+                                            padding: "8px", width: "100%", textAlign: "left", backgroundColor: "#f1f1f1", border: "1px solid #ddd", borderRadius: "4px", marginBottom: "10px", cursor: "pointer", boxSizing: "border-box"
+                                        }}>
+                                            Cafes ({cafes.length})
+                                        </button>
+                                        {isCafeDropdownOpen && (
+                                            <ul style={{ listStyleType: "none", padding: "0", marginBottom: "10px", boxSizing: "border-box" }}>
+                                                {cafes.map((place, index) => (
+                                                    <li key={index} style={{
+                                                        padding: "8px", borderBottom: "1px solid #ddd", cursor: "pointer",
+                                                        transition: "background-color 0.3s ease",
+                                                        backgroundColor: "white",
+                                                    }}
+                                                        onClick={() => showPlaceDetails(place.place_id)}
+                                                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"}
+                                                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = "white"}
+                                                    >
+                                                        <strong>{place.name}</strong>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
-                    {/* Map Container */}
                     <div style={{ width: "calc(100vw - 320px)", height: "100vh", boxSizing: "border-box" }}>
                         <GoogleMap
                             mapContainerStyle={{ width: "100%", height: "100%" }}
