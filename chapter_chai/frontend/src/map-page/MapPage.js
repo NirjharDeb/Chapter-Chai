@@ -15,6 +15,9 @@ function MapPage() {
     const [isCafeDropdownOpen, setIsCafeDropdownOpen] = useState(false);
     const [selectedPlace, setSelectedPlace] = useState(null);  // For showing the details tab
 
+    const[originalCenter, setOriginalCenter] = useState({lat, lng});
+    const [zoom, setZoom] = useState(15); //default zoom level
+
     const center = {
         lat: lat, 
         lng: lng,
@@ -74,6 +77,7 @@ function MapPage() {
         });
     };
 
+
     const toggleBookstoreDropdown = () => {
         setIsBookstoreDropdownOpen(!isBookstoreDropdownOpen);
     };
@@ -84,6 +88,8 @@ function MapPage() {
 
     const showPlaceDetails = (placeId) => {
         // Fetch place details using placeId
+        setOriginalCenter({lat, lng});
+        setZoom(zoom);
         placesService.getDetails({ placeId }, (place, status) => {
             if (status === window.google.maps.places.PlacesServiceStatus.OK) {
                 setSelectedPlace({
@@ -92,6 +98,12 @@ function MapPage() {
                     rating: place.rating, // Show only the overall rating out of 5
                     url: place.url,  // Google Maps URL for the place
                 });
+                
+                if(map) {
+                    setLat(place.geometry.location.lat());
+                    setLng(place.geometry.location.lng());
+                    map.setZoom(18);
+                }
             } else {
                 console.error("Failed to fetch place details:", status);
             }
@@ -100,12 +112,18 @@ function MapPage() {
 
     const goBackToResults = () => {
         setSelectedPlace(null);
+        if(map) {
+            setLat(originalCenter.lat);
+            setLng(originalCenter.lng);
+            map.setZoom(zoom);
+        }
     };
 
     return (
         <>
             <LoadScript
-                googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}
+                //googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}
+                googleMapsApiKey={"AIzaSyAQzSw091TkcMWpTUrwP54WJH2jN-6pzKo"}
                 libraries={libraries}
             >
 
