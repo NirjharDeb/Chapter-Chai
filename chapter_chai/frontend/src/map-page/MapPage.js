@@ -21,6 +21,11 @@ function MapPage() {
         maxPrice: 4,
         minRating: 0
     });
+
+    const [originalCenter, setOriginalCenter] = useState({lat,lng});
+    const [zoom, setZoom] = useState(15);
+
+
     const [isSettingsDropdownOpen, setIsSettingsDropdownOpen] = useState(false);
 
     const center = {
@@ -92,6 +97,9 @@ function MapPage() {
     };
 
     const showPlaceDetails = (placeId) => {
+        setOriginalCenter({lat, lng});
+        setZoom(zoom);
+
         placesService.getDetails({ placeId }, (place, status) => {
             if (status === window.google.maps.places.PlacesServiceStatus.OK) {
                 setSelectedPlace({
@@ -101,6 +109,14 @@ function MapPage() {
                     price: place.price_level,
                     url: place.url,
                 });
+                if(map) {
+                    setLat(place.geometry.location.lat());
+                    setLng(place.geometry.location.lng());
+                    setTimeout(() => {
+                        map.setZoom(18);
+                    }, 300);
+
+                }
             } else {
                 console.error("Failed to fetch place details:", status);
             }
@@ -109,6 +125,13 @@ function MapPage() {
 
     const goBackToResults = () => {
         setSelectedPlace(null);
+        if(map) {
+            setLat(originalCenter.lat);
+            setLng(originalCenter.lng);
+            setTimeout(() => {
+                map.setZoom(zoom);
+            }, 300);
+        }
     };
 
     const toggleFilter = (filterType) => {
@@ -144,7 +167,8 @@ function MapPage() {
     return (
         <>
             <LoadScript
-                googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}
+                //googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}
+                googleMapsApiKey={"AIzaSyAQzSw091TkcMWpTUrwP54WJH2jN-6pzKo"}
                 libraries={libraries}
             >
                 <div style={{ display: "flex", width: "100vw", height: "100vh", overflow: "hidden" }}>
