@@ -17,6 +17,8 @@ function MapPage() {
 
     const[originalCenter, setOriginalCenter] = useState({lat, lng});
     const [zoom, setZoom] = useState(15); //default zoom level
+    setOriginalCenter({lat, lng});
+    setZoom(zoom);
 
     const center = {
         lat: lat, 
@@ -88,8 +90,6 @@ function MapPage() {
 
     const showPlaceDetails = (placeId) => {
         // Fetch place details using placeId
-        setOriginalCenter({lat, lng});
-        setZoom(zoom);
         placesService.getDetails({ placeId }, (place, status) => {
             if (status === window.google.maps.places.PlacesServiceStatus.OK) {
                 setSelectedPlace({
