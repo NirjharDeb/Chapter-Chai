@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { GoogleMap, LoadScript, Autocomplete } from '@react-google-maps/api';
+import { GoogleMap, LoadScript, Autocomplete, Marker } from '@react-google-maps/api';
 
 const libraries = ["places"];
 
@@ -92,7 +92,7 @@ function MapPage() {
         <>
             <LoadScript
                 loadingElement={<div>Loading...</div>}
-                googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}
+                googleMapsApiKey="AIzaSyAQzSw091TkcMWpTUrwP54WJH2jN-6pzKo"
                 libraries={libraries}
             >
                 <div style={{ display: "flex", width: "100vw", height: "100vh", overflow: "hidden" }}>
@@ -212,7 +212,7 @@ function MapPage() {
 
                     {/* Map Container */}
                     <div style={{ width: "calc(100vw - 320px)", height: "100vh", boxSizing: "border-box" }}>
-                        <GoogleMap
+                    <GoogleMap
                             mapContainerStyle={{ width: "100%", height: "100%" }}
                             center={center}
                             zoom={15}
@@ -222,7 +222,37 @@ function MapPage() {
                                 streetViewControl: false,
                                 fullscreenControl: false,
                             }}
-                        />
+                        >
+                            {/* Render bookstore markers */}
+                            {bookstores.map((bookstore, index) => (
+                                <Marker
+                                    key={`bookstore-${index}`}
+                                    position={{
+                                        lat: bookstore.geometry.location.lat(),
+                                        lng: bookstore.geometry.location.lng()
+                                    }}
+                                    icon={{
+                                        url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+                                    }}
+                                    title={bookstore.name}
+                                />
+                            ))}
+
+                            {/* Render cafe markers */}
+                            {cafes.map((cafe, index) => (
+                                <Marker
+                                    key={`cafe-${index}`}
+                                    position={{
+                                        lat: cafe.geometry.location.lat(),
+                                        lng: cafe.geometry.location.lng()
+                                    }}
+                                    icon={{
+                                        url: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
+                                    }}
+                                    title={cafe.name}
+                                />
+                            ))}
+                        </GoogleMap>
                     </div>
                 </div>
             </LoadScript>
