@@ -13,19 +13,10 @@ function MapPage() {
     const [cafes, setCafes] = useState([]);
     const [isBookstoreDropdownOpen, setIsBookstoreDropdownOpen] = useState(false);
     const [isCafeDropdownOpen, setIsCafeDropdownOpen] = useState(false);
-    
+    const [selectedPlace, setSelectedPlace] = useState(null);  // For showing the details tab
 
     const[originalCenter, setOriginalCenter] = useState({lat, lng});
     const [zoom, setZoom] = useState(15); //default zoom level
-    
-    const [selectedPlace, setSelectedPlace] = useState(null);  // For showing the details tab
-    const [filters, setFilters] = useState({
-        bookstores: true,
-        cafes: true,
-        minPrice: 0,
-        maxPrice: 4,
-        minRating: 0
-    });
 
     const center = {
         lat: lat, 
@@ -86,7 +77,6 @@ function MapPage() {
         });
     };
 
-
     const toggleBookstoreDropdown = () => {
         setIsBookstoreDropdownOpen(!isBookstoreDropdownOpen);
     };
@@ -111,7 +101,10 @@ function MapPage() {
                 if(map) {
                     setLat(place.geometry.location.lat());
                     setLng(place.geometry.location.lng());
-                    map.setZoom(18);
+                    setTimeout(() => {
+                        map.setZoom(18);
+                    }, 300);
+                    
                 }
             } else {
                 console.error("Failed to fetch place details:", status);
@@ -131,6 +124,7 @@ function MapPage() {
     return (
         <>
             <LoadScript
+                //googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}
                 googleMapsApiKey={"AIzaSyAQzSw091TkcMWpTUrwP54WJH2jN-6pzKo"}
                 libraries={libraries}
             >
