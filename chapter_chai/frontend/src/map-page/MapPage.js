@@ -267,6 +267,7 @@ function MapPage() {
                                         url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
                                     }}
                                     title={bookstore.name}
+                                    onClick={() => showPlaceDetails(bookstore.place_id)}
                                 />
                             ))}
 
@@ -282,6 +283,7 @@ function MapPage() {
                                         url: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
                                     }}
                                     title={cafe.name}
+                                    onClick={() => showPlaceDetails(cafe.place_id)}
                                 />
                             ))}
                         </GoogleMap>
