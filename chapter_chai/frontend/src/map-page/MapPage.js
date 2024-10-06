@@ -155,6 +155,17 @@ function MapPage() {
         setIsSettingsDropdownOpen(!isSettingsDropdownOpen);
     };
 
+    const resetMap = () => {
+        setSelectedPlace(null);
+        if (map) {
+            setLat(33.77705);
+            setLng(-84.39896);
+            setTimeout(() => {
+                map.setZoom(zoom);
+            }, 300);
+        }
+    };
+
     // Function to call OpenAI API for review summary using /chat/completions
     const generateAIReview = async (placeId) => {
         if (!selectedPlace) return;
@@ -469,7 +480,7 @@ function MapPage() {
                                     borderBottom: '1px solid #ddd',
                                     cursor: 'pointer',
                                     transition: 'background-color 0.3s ease',
-                                }} onClick={() => {/* TODO */}}>
+                                }} onClick={resetMap}>
                                     <strong>Reset Map</strong>
                                 </li>
                                 <li style={{
