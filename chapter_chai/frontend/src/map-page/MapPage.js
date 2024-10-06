@@ -14,6 +14,7 @@ function MapPage() {
     const [isBookstoreDropdownOpen, setIsBookstoreDropdownOpen] = useState(false);
     const [isCafeDropdownOpen, setIsCafeDropdownOpen] = useState(false);
     const [selectedPlace, setSelectedPlace] = useState(null);  // For showing the details tab
+    const [filters, setFilters] = useState({ bookstores: true, cafes: true });
 
     const center = {
         lat: lat, 
@@ -40,38 +41,43 @@ function MapPage() {
     const handleSearch = (lat, lng) => {
         if (!placesService) return;
         const location = new window.google.maps.LatLng(lat, lng);
-        
-        // Search for bookstores
-        const requestBookstores = {
-            keyword: "Bookstores",
-            location,
-            radius: 16093.4 // 10 mi
-        };
-        placesService.nearbySearch(requestBookstores, (results, status) => {
-            if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-                setBookstores(results);
-            } else if (status === window.google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
-                setBookstores([]);
-            } else {
-                console.error("Bookstores request failed with status:", status);
-            }
-        });
 
-        // Search for cafes
-        const requestCafes = {
-            keyword: "Cafe",
-            location,
-            radius: 16093.4 // 10 mi
-        };
-        placesService.nearbySearch(requestCafes, (results, status) => {
-            if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-                setCafes(results);
-            } else if (status === window.google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
-                setCafes([]);
-            } else {
-                console.error("Cafes request failed with status:", status);
-            }
-        });
+
+        // search for bookstores
+        if (filters.bookstores) {
+            const requestBookstores = {
+                keyword: "Bookstores",
+                location,
+                radius: 16093.4
+            };
+            placesService.nearbySearch(requestBookstores, (results, status) => {
+                if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+                    setBookstores(results);
+                } else if (status === window.google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+                    setBookstores([]);
+                } else {
+                    console.error("Bookstores request failed with status:", status);
+                }
+            });
+        }
+        
+        // search for cafes
+        if (filters.cafes) {
+            const requestCafes = {
+                keyword: "Cafe",
+                location,
+                radius: 16093.4
+            };
+            placesService.nearbySearch(requestCafes, (results, status) => {
+                if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+                    setCafes(results);
+                } else if (status === window.google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+                    setCafes([]);
+                } else {
+                    console.error("Cafes request failed with status:", status);
+                }
+            });
+        }
     };
 
     const toggleBookstoreDropdown = () => {
@@ -100,6 +106,14 @@ function MapPage() {
 
     const goBackToResults = () => {
         setSelectedPlace(null);
+    };
+
+    const toggleFilter = (filterType) => {
+        setFilters(prevFilters => ({
+            ...prevFilters,
+            [filterType]: !prevFilters[filterType]
+        }));
+        handleSearch(lat, lng);
     };
 
     return (
@@ -180,6 +194,33 @@ function MapPage() {
                                     Search
                                 </button>
 
+                                {/* Filter options */}
+                                <div style={{ marginTop: "20px", marginBottom: "20px" }}>
+                                    <h3>Filters</h3>
+                                    <div style={{ display: "flex", justifyContent: "space-between" }}>
+                                        <button
+                                            onClick={() => toggleFilter('bookstores')}
+                                            style={{
+                                                // ... (styles for the button)
+                                                backgroundColor: filters.bookstores ? "#4285F4" : "#f1f1f1",
+                                                color: filters.bookstores ? "#fff" : "#000",
+                                            }}
+                                        >
+                                            Bookstores
+                                        </button>
+                                        <button
+                                            onClick={() => toggleFilter('cafes')}
+                                            style={{
+                                                // ... (styles for the button)
+                                                backgroundColor: filters.cafes ? "#4285F4" : "#f1f1f1",
+                                                color: filters.cafes ? "#fff" : "#000",
+                                            }}
+                                        >
+                                            Cafes
+                                        </button>
+                                    </div>
+                                </div>
+
                                 <div style={{ maxHeight: "calc(100vh - 150px)", overflowY: "auto", padding: "10px", boxSizing: "border-box" }}>
                                     <h3>Nearby Places</h3>
                                     <div>
@@ -256,7 +297,7 @@ function MapPage() {
                             }}
                         >
                             {/* Render bookstore markers */}
-                            {bookstores.map((bookstore, index) => (
+                            {filters.bookstores && bookstores.map((bookstore, index) => (
                                 <Marker
                                     key={`bookstore-${index}`}
                                     position={{
@@ -272,7 +313,7 @@ function MapPage() {
                             ))}
 
                             {/* Render cafe markers */}
-                            {cafes.map((cafe, index) => (
+                            {filters.cafes && cafes.map((cafe, index) => (
                                 <Marker
                                     key={`cafe-${index}`}
                                     position={{
