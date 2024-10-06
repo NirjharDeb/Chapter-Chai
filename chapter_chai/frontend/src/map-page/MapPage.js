@@ -167,7 +167,7 @@ function MapPage() {
     return (
         <>
             <LoadScript
-                googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}
+                googleMapsApiKey="AIzaSyAQzSw091TkcMWpTUrwP54WJH2jN-6pzKo"
                 libraries={libraries}
             >
                 <div style={{ display: "flex", width: "100vw", height: "100vh", overflow: "hidden" }}>
@@ -411,22 +411,59 @@ function MapPage() {
                                 />
                             ))}
                         </GoogleMap>
-                        <img 
-                            src="settings.png"
-                            alt="Settings"
-                            onClick={toggleSettingsDropdown} 
-                            style={{
-                                width: "50px",
-                                height: "50px",
-                                position: "fixed", 
-                                top: "10px", 
-                                right: "10px", 
-                                cursor: "pointer",
-                                transition: "opacity 0.3s ease",
+                        <img style={{
+                                width: '50px',
+                                height: '50px',
+                                position: 'fixed', 
+                                top: '10px', 
+                                right: '10px', 
+                                cursor: 'pointer',
+                                transition: 'opacity 0.3s ease',
                             }}
+                            src='settings.png'
+                            alt='Settings'
+                            onClick={toggleSettingsDropdown} 
                             onMouseOver={(e) => e.currentTarget.style.opacity = "0.7"}
                             onMouseOut={(e) => e.currentTarget.style.opacity = "1"}
                         />
+                        {isSettingsDropdownOpen && (
+                            <ul style={{
+                                listStyleType: 'none',
+                                padding: '0',
+                                top: '40px',
+                                right: '10px',
+                                position: 'fixed', 
+                                boxSizing: 'border-box',
+                                backgroundColor: '#FDFAF9',
+                                border: '1px solid #ddd',
+                                borderRadius: '4px',
+                                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
+                            }}>
+                                <li style={{
+                                    padding: '8px',
+                                    borderBottom: '1px solid #ddd',
+                                    cursor: 'pointer',
+                                    transition: 'background-color 0.3s ease',
+                                }} onClick={() => { /* TODO */ }}>
+                                    <strong>Log Out</strong>
+                                </li>
+                                <li style={{
+                                    padding: '8px',
+                                    borderBottom: '1px solid #ddd',
+                                    cursor: 'pointer',
+                                    transition: 'background-color 0.3s ease',
+                                }} onClick={() => {/* TODO */}}>
+                                    <strong>Reset Map</strong>
+                                </li>
+                                <li style={{
+                                    padding: '8px',
+                                    cursor: 'pointer',
+                                    transition: 'background-color 0.3s ease',
+                                }} onClick={() => { /* TODO */ }}>
+                                    <strong>Refresh</strong>
+                                </li>
+                            </ul>
+                        )}
                     </div>
                 </div>
             </LoadScript>
