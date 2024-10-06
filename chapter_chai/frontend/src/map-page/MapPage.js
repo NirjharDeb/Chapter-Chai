@@ -1,79 +1,48 @@
 import React, { useEffect, useState, useRef } from "react";
-import { GoogleMap, LoadScript, Autocomplete } from '@react-google-maps/api';
+import { GoogleMap, LoadScript, Autocomplete, Marker } from '@react-google-maps/api';
 
 const libraries = ["places"];
 
 function MapPage() {
-
-
-    /*changed made by mariam:
-        1. Change of useEffect --> PAN TO NEW LOCATION
-            //before: map wouldn't pan to the new updated location
-            //after: now the map changes alongisde the location updates (see the handling function below)
-        2. use AUTOCOMPLETE -- takes in a search input from user 
-            //replaces the manual input of lat/long
-            //uses the autocomplete of the google maps api
-            //allows user to 
-        3. Change of centering map location -- changed from hardcoded value
-        4. Changed SEARCH
-            --allowed for ability to search both bookstores and cafes
-            --this created the following: 
-                --const [bookstores, setBookstores] = useState([]);
-                --const [cafes, setCafes] = useState([]);
-        5. Created a layer popup to showcase the results
-            -- will be changed and fine tuned by Nirjhar
-    */
-    
-
-    // values from inputs
-    const [lat, setLat] = useState(33.77705); //default latitude
-    const [lng, setLng] = useState(-84.39896); //default longitude 
+    const [lat, setLat] = useState(33.77705); // default latitude
+    const [lng, setLng] = useState(-84.39896); // default longitude 
     const [map, setMap] = useState(null);
     const autocompleteref = useRef(null);
-
-    //handling search:
     const [placesService, setPlacesService] = useState(null);
     const [bookstores, setBookstores] = useState([]);
     const [cafes, setCafes] = useState([]);
+    const [isBookstoreDropdownOpen, setIsBookstoreDropdownOpen] = useState(false);
+    const [isCafeDropdownOpen, setIsCafeDropdownOpen] = useState(false);
+    const [selectedPlace, setSelectedPlace] = useState(null);  // For showing the details tab
+    const [isSettingsDropdownOpen, setIsSettingsDropdownOpen] = useState(false);
 
-   
-    // center should dynamically change based upon specified geolocation or user input
     const center = {
         lat: lat, 
         lng: lng,
     };
 
-    //allows the map to pan to wherever lat/lng was updated to -- just better to look at 
     useEffect(() => {
         if (map) {
             map.panTo({ lat, lng });
             const service = new window.google.maps.places.PlacesService(map);
             setPlacesService(service);
+            handleSearch(lat, lng);  // Trigger search when map location changes
         }
     }, [map, lat, lng]);
 
-
-    //Initialize PlaceServices
-    useEffect(() => {
-        if (map) {
-            const service = new window.google.maps.places.PlacesService(map);
-            setPlacesService(service);
-        }
-    }, [map]);
-
-
     const onPlaceChange = () => {
         const place = autocompleteref.current.getPlace();
-        if(place && place.geometry) {
-            setLat(place.geometry.location.lat()); //update lat from extracted lat of place
-            setLng(place.geometry.location.lng()); //update lng from extracted lng of place
-            handleSearch(place.geometry.location.lat(),place.geometry.location.lng()); //call handleSearch
+        if (place && place.geometry) {
+            setLat(place.geometry.location.lat());
+            setLng(place.geometry.location.lng());
         }
     };
 
     const handleSearch = (lat, lng) => {
         if (!placesService) return;
-        const location = new window.google.maps.LatLng(lat,lng);
+        const location = new window.google.maps.LatLng(lat, lng);
+        
+        // Search for bookstores
         const requestBookstores = {
             keyword: "Bookstores",
             location,
@@ -83,11 +52,13 @@ function MapPage() {
             if (status === window.google.maps.places.PlacesServiceStatus.OK) {
                 setBookstores(results);
             } else if (status === window.google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
-                console.log("No results!");
+                setBookstores([]);
             } else {
-                console.error("Places API request failed with status:", status);
+                console.error("Bookstores request failed with status:", status);
             }
         });
+
+        // Search for cafes
         const requestCafes = {
             keyword: "Cafe",
             location,
@@ -97,113 +68,248 @@ function MapPage() {
             if (status === window.google.maps.places.PlacesServiceStatus.OK) {
                 setCafes(results);
             } else if (status === window.google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
-                console.log("No results!");
+                setCafes([]);
             } else {
-                console.error("Places API request failed with status:", status);
+                console.error("Cafes request failed with status:", status);
             }
         });
+    };
+
+    const toggleBookstoreDropdown = () => {
+        setIsBookstoreDropdownOpen(!isBookstoreDropdownOpen);
+    };
+
+    const toggleCafeDropdown = () => {
+        setIsCafeDropdownOpen(!isCafeDropdownOpen);
+    };
+
+    const showPlaceDetails = (placeId) => {
+        // Fetch place details using placeId
+        placesService.getDetails({ placeId }, (place, status) => {
+            if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+                setSelectedPlace({
+                    name: place.name,
+                    photo: place.photos ? place.photos[0].getUrl() : null,
+                    rating: place.rating, // Show only the overall rating out of 5
+                    url: place.url,  // Google Maps URL for the place
+                });
+            } else {
+                console.error("Failed to fetch place details:", status);
+            }
+        });
+    };
+
+    const goBackToResults = () => {
+        setSelectedPlace(null);
+    };
+
+    const toggleSettingsDropdown = () => {
+        setIsSettingsDropdownOpen(!isSettingsDropdownOpen);
     };
 
     return (
         <>
             <LoadScript
-                loadingElement={<div>Loading...</div>}
-                googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}
+                googleMapsApiKey="AIzaSyAQzSw091TkcMWpTUrwP54WJH2jN-6pzKo"
                 libraries={libraries}
             >
-                <GoogleMap
-                    mapContainerStyle={{ width: "calc(100vw - 320px)", height: "100vh", marginLeft: "320px" }} // Adjusted the map width to leave space for results tab
-                    center={center}
-                    zoom={15}
-                    onLoad={(mapInstance) => setMap(mapInstance)}
-                    options={{
-                        mapTypeControl: false, // This disables terrain and satellite options
-                        streetViewControl: false, // Optionally, disable Street View as well if you don't need it
-                        fullscreenControl: false, // Optionally, disable the fullscreen button
-                    }}
-                />
 
-                {/* Results Tab with Search Bar */}
-                <div style={{
-                    position: "absolute",
-                    top: "0",
-                    left: "0",
-                    width: "320px",
-                    height: "100vh",
-                    overflowY: "scroll",
-                    backgroundColor: "#fff",
-                    boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
-                    padding: "10px",
-                    zIndex: 2,
-                    borderRadius: "4px"
-                }}>
+                <div style={{ display: "flex", width: "100vw", height: "100vh", overflow: "hidden" }}>
+
                     <div style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        marginBottom: "10px"
+                        width: "320px",
+                        height: "100vh",
+                        overflowY: "auto",
+                        backgroundColor: "#C7AE93",
+                        boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
+                        padding: "10px",
+                        zIndex: 2,
+                        borderRadius: "4px",
+                        boxSizing: "border-box"
                     }}>
-                        {/* Search Bar */}
-                        <Autocomplete
-                            onLoad={(autocomplete) => (autocompleteref.current = autocomplete)}
-                            onPlaceChanged={onPlaceChange}
-                        >
-                            <input
-                                type="text"
-                                placeholder="   SEARCH   "
-                                className="search-input"
-                                style={{ padding: "8px", width: "100%", fontSize: "14px", border: "1px solid #dcdcdc", borderRadius: "4px", marginBottom: "10px" }}
-                            />
-                        </Autocomplete>
-                        <button onClick={handleSearch} style={{
-                            padding: "8px",
-                            backgroundColor: "#4285F4",
-                            color: "#fff",
-                            border: "none",
-                            borderRadius: "4px",
-                            cursor: "pointer"
-                        }}>
-                            Search
-                        </button>
+
+                        {selectedPlace ? (
+                            // Place Details Tab
+                            <div style={{ padding: "10px" }}>
+
+                                <button onClick={goBackToResults} style={{ 
+                                    padding: "8px", marginBottom: "10px", backgroundColor: "#4285F4", color: "#fff", border: "none", borderRadius: "4px",
+                                    transition: "background-color 0.3s ease", cursor: "pointer"
+                                }}
+                                onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#357AE8"}
+                                onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#4285F4"}>
+
+                                </button>
+                                <h2>{selectedPlace.name}</h2>
+                                {selectedPlace.photo && <img src={selectedPlace.photo} alt={selectedPlace.name} style={{ width: "100%", height: "auto", borderRadius: "8px" }} />}
+                                <h3>Rating: {selectedPlace.rating ? `${selectedPlace.rating} / 5` : "No rating available"}</h3>
+                                
+                                {/* Clickable Google Maps link */}
+                                {selectedPlace.url && (
+                                    <a href={selectedPlace.url} target="_blank" rel="noopener noreferrer" style={{ 
+                                        display: "inline-block", marginTop: "10px", padding: "8px 16px", backgroundColor: "#34A853", color: "#fff", borderRadius: "4px",
+                                        textDecoration: "none", transition: "background-color 0.3s ease", cursor: "pointer"
+                                    }}
+                                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#2C8C46"}
+                                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#34A853"}>
+                                        View on Google Maps
+                                    </a>
+                                )}
+                            </div>
+                        ) : (
+                            // Results Tab
+                            <div>
+                                <Autocomplete
+                                    onLoad={(autocomplete) => (autocompleteref.current = autocomplete)}
+                                    onPlaceChanged={onPlaceChange}
+                                >
+                                    <input
+                                        type="text"
+                                        placeholder="   SEARCH   "
+                                        className="search-input"
+                                        style={{ padding: "8px", width: "100%", fontSize: "14px", border: "1px solid #dcdcdc", borderRadius: "4px", marginBottom: "10px", boxSizing: "border-box" }}
+                                    />
+                                </Autocomplete>
+                                <button onClick={() => handleSearch(lat, lng)} style={{
+                                    padding: "8px",
+                                    backgroundColor: "#CA6D5E",
+                                    color: "#fff",
+                                    border: "none",
+                                    borderRadius: "4px",
+                                    cursor: "pointer",
+                                    boxSizing: "border-box",
+                                    width: "100%",
+                                    transition: "background-color 0.3s ease"
+                                }}
+                                onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#357AE8"}
+                                onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#4285F4"}>
+                                    John Cena
+                                </button>
+
+                                <div style={{ maxHeight: "calc(100vh - 150px)", overflowY: "auto", padding: "10px", boxSizing: "border-box" }}>
+                                    <h3>Nearby Places</h3>
+                                    <div>
+                                        <button onClick={toggleBookstoreDropdown} style={{
+                                            padding: "8px", width: "100%", textAlign: "left", backgroundColor: "#f1f1f1", border: "1px solid #ddd", borderRadius: "4px", marginBottom: "10px", cursor: "pointer", boxSizing: "border-box",
+                                            transition: "background-color 0.3s ease"
+                                        }}
+                                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#e0e0e0"}
+                                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#f1f1f1"}>
+                                            Bookstores ({bookstores.length})
+                                        </button>
+                                        {isBookstoreDropdownOpen && (
+                                            <ul style={{ listStyleType: "none", padding: "0", marginBottom: "10px", boxSizing: "border-box" }}>
+                                                {bookstores.map((place, index) => (
+                                                    <li key={index} style={{
+                                                        padding: "8px", borderBottom: "1px solid #ddd", cursor: "pointer",
+                                                        transition: "background-color 0.3s ease",
+                                                        backgroundColor: "#FDFAF9",
+                                                    }}
+                                                        onClick={() => showPlaceDetails(place.place_id)}
+                                                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"}
+                                                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#FDFAF9"}
+                                                    >
+                                                        <strong>{place.name}</strong>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                    </div>
+
+                                    <div>
+                                        <button onClick={toggleCafeDropdown} style={{
+                                            padding: "8px", width: "100%", textAlign: "left", backgroundColor: "#f1f1f1", border: "1px solid #ddd", borderRadius: "4px", marginBottom: "10px", cursor: "pointer", boxSizing: "border-box",
+                                            transition: "background-color 0.3s ease"
+                                        }}
+                                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#e0e0e0"}
+                                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#f1f1f1"}>
+                                            Cafes ({cafes.length})
+                                        </button>
+                                        {isCafeDropdownOpen && (
+                                            <ul style={{ listStyleType: "none", padding: "0", marginBottom: "10px", boxSizing: "border-box" }}>
+                                                {cafes.map((place, index) => (
+                                                    <li key={index} style={{
+                                                        padding: "8px", borderBottom: "1px solid #ddd", cursor: "pointer",
+                                                        transition: "background-color 0.3s ease",
+                                                        backgroundColor: "#FDFAF9",
+                                                    }}
+                                                        onClick={() => showPlaceDetails(place.place_id)}
+                                                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"}
+                                                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#FDFAF9"}
+                                                    >
+                                                        <strong>{place.name}</strong>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                     </div>
 
-                    {/* only commented out to test implementation */}
-                    {/* Places Found
-                    <h3 style={{ textAlign: "center", marginBottom: "10px" }}>Places Found</h3>
-                    {places.length > 0 ? (
-                        <ul style={{ listStyleType: "none", padding: "0" }}>
-                            {places.map((place, index) => (
-                                <li key={index} style={{ marginBottom: "10px", borderBottom: "1px solid #ddd", paddingBottom: "10px" }}>
-                                    <b>{place.name}</b><br />
-                                    {place.geometry.location.lat()}, {place.geometry.location.lng()}
-                                </li>
+                    <div style={{ width: "calc(100vw - 320px)", height: "100vh", boxSizing: "border-box" }}>
+                        <GoogleMap
+                            mapContainerStyle={{ width: "100%", height: "100%" }}
+                            center={center}
+                            zoom={15}
+                            onLoad={(mapInstance) => setMap(mapInstance)}
+                            options={{
+                                mapTypeControl: false,
+                                streetViewControl: false,
+                                fullscreenControl: false,
+                            }}
+                        >
+                            {/* Render bookstore markers */}
+                            {bookstores.map((bookstore, index) => (
+                                <Marker
+                                    key={`bookstore-${index}`}
+                                    position={{
+                                        lat: bookstore.geometry.location.lat(),
+                                        lng: bookstore.geometry.location.lng()
+                                    }}
+                                    icon={{
+                                        url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+                                    }}
+                                    title={bookstore.name}
+                                    onClick={() => showPlaceDetails(bookstore.place_id)}
+                                />
                             ))}
-                        </ul>
-                    ) : (
-                        <p>No places found.</p>
-                    )} */}
 
-                    {/* Mariam's original implementation */}
-                    <div className="places" style = {{
-                        position:"absolute",
-                        bottom: "10px",
-                        left: "10px",
-                        backgroundColor: "white",
-                        padding: "10px",
-                        maxHeight: "1000px",
-                        overflowY: "scroll",
-                        zIndex: 1,
-                    }}> 
-                    <h3> Bookstores &amp; Cafes Nearby </h3>
-                    <u1>
-                        {bookstores.map((place, index) => (
-                            <li key={index}><strong>Bookstore:</strong> {place.name} </li>
-                        ))}
-                        {cafes.map((place, index) => (
-                            <li key={index}><strong>Cafe:</strong> {place.name} </li>
-                        ))}
-                    </u1>
-                </div>
-
+                            {/* Render cafe markers */}
+                            {cafes.map((cafe, index) => (
+                                <Marker
+                                    key={`cafe-${index}`}
+                                    position={{
+                                        lat: cafe.geometry.location.lat(),
+                                        lng: cafe.geometry.location.lng()
+                                    }}
+                                    icon={{
+                                        url: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
+                                    }}
+                                    title={cafe.name}
+                                    onClick={() => showPlaceDetails(cafe.place_id)}
+                                />
+                            ))}
+                        </GoogleMap>
+                        <img 
+                            src="settings.png"
+                            alt="Settings"
+                            onClick={toggleSettingsDropdown} 
+                            style={{
+                                width: "50px",
+                                height: "50px",
+                                position: "fixed", 
+                                top: "10px", 
+                                right: "10px", 
+                                cursor: "pointer",
+                                transition: "opacity 0.3s ease",
+                            }}
+                            onMouseOver={(e) => e.currentTarget.style.opacity = "0.7"}
+                            onMouseOut={(e) => e.currentTarget.style.opacity = "1"}
+                        />
+                    </div>
                 </div>
             </LoadScript>
         </>
