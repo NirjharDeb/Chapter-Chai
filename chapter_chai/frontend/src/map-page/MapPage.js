@@ -122,7 +122,7 @@ function MapPage() {
     return (
         <>
             <LoadScript
-                googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}
+                googleMapsApiKey={"AIzaSyAQzSw091TkcMWpTUrwP54WJH2jN-6pzKo"}
                 libraries={libraries}
             >
 
