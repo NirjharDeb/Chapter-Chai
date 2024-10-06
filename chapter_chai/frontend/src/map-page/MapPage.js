@@ -1,7 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
 import { GoogleMap, LoadScript, Autocomplete, Marker } from '@react-google-maps/api';
+import axios from 'axios';
 
 const libraries = ["places"];
+// Hardcoded API key (for testing only; replace it securely in production)
+const OPENAI_API_KEY = 'test';
 
 function MapPage() {
     const [lat, setLat] = useState(33.77705);
@@ -22,15 +25,15 @@ function MapPage() {
         minRating: 0
     });
 
+    // Store AI review cache to prevent redundant API calls
+    const [aiReviewCache, setAIReviewCache] = useState({});
+    const [aiReviewText, setAIReviewText] = useState(""); // Store AI review text
+    const [isCachedReview, setIsCachedReview] = useState(false); // Store cache status
+
     const [originalCenter, setOriginalCenter] = useState({ lat, lng });
     const [zoom, setZoom] = useState(15);
-
     const [isSettingsDropdownOpen, setIsSettingsDropdownOpen] = useState(false);
-
-    const center = {
-        lat: lat,
-        lng: lng,
-    };
+    const center = { lat: lat, lng: lng };
 
     useEffect(() => {
         if (map && placesService) {
@@ -98,12 +101,16 @@ function MapPage() {
         placesService.getDetails({ placeId }, (place, status) => {
             if (status === window.google.maps.places.PlacesServiceStatus.OK) {
                 setSelectedPlace({
+                    placeId: placeId, // Store the placeId for future API calls
                     name: place.name,
                     photo: place.photos ? place.photos[0].getUrl() : null,
                     rating: place.rating,
                     price: place.price_level,
                     url: place.url,
+                    reviews: place.reviews || [],
                 });
+                setAIReviewText(""); // Reset AI review text
+                setIsCachedReview(false); // Reset cache status
                 if (map) {
                     setLat(place.geometry.location.lat());
                     setLng(place.geometry.location.lng());
@@ -148,10 +155,65 @@ function MapPage() {
         setIsSettingsDropdownOpen(!isSettingsDropdownOpen);
     };
 
+    // Function to call OpenAI API for review summary using /chat/completions
+    const generateAIReview = async (placeId) => {
+        if (!selectedPlace) return;
+
+        console.log("Selected place for AI review: ", selectedPlace);
+
+        // Check if we have cached reviews
+        const reviewsText = selectedPlace.reviews.slice(0, 20).map(r => r.text).join(" ");
+        const currentReviewKey = placeId + '-' + reviewsText;
+
+        if (aiReviewCache[currentReviewKey]) {
+            setAIReviewText(aiReviewCache[currentReviewKey]);
+            setIsCachedReview(true);
+            return;
+        }
+
+        try {
+            // Updated API call to OpenAI's chat completions endpoint
+            const response = await axios.post(
+                'https://api.openai.com/v1/chat/completions',
+                {
+                    model: 'gpt-4o-mini',
+                    messages: [{ role: 'user', content: `Summarize the following reviews into a concise paragraph: ${reviewsText}` }],
+                    max_tokens: 150,
+                    temperature: 0.7
+                },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            const aiReview = response.data.choices[0].message.content.trim();
+            console.log("Response from OpenAI:", response.data);
+
+            // Cache the generated AI review
+            setAIReviewCache(prevCache => ({
+                ...prevCache,
+                [currentReviewKey]: aiReview
+            }));
+
+            setAIReviewText(aiReview);
+            setIsCachedReview(false); // This is a new review, not from cache
+        } catch (error) {
+            if (error.response) {
+                console.error("Error response:", error.response.data);
+            } else {
+                console.error("Error generating AI review:", error.message);
+            }
+            alert("Failed to generate AI review. Please try again.");
+        }
+    };
+
     return (
         <>
             <LoadScript
-                googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}
+                googleMapsApiKey="AIzaSyAQzSw091TkcMWpTUrwP54WJH2jN-6pzKo"
                 libraries={libraries}
             >
                 <div style={{ display: "flex", width: "100vw", height: "100vh", overflow: "hidden" }}>
@@ -188,6 +250,27 @@ function MapPage() {
                                         View on Google Maps
                                     </a>
                                 )}
+
+                                {/* Generate AI Review button */}
+                                <button onClick={() => generateAIReview(selectedPlace.placeId)}
+                                    style={{
+                                        padding: "8px", marginTop: "10px", backgroundColor: "#F39C12", color: "#fff", border: "none", borderRadius: "4px",
+                                        transition: "background-color 0.3s ease", cursor: "pointer"
+                                    }}
+                                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#E67E22"}
+                                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#F39C12"}>
+                                    Generate AI Review
+                                </button>
+
+                                {/* AI Review Section */}
+                                {aiReviewText && (
+                                    <div style={{ marginTop: "20px" }}>
+                                        <h3>AI-Generated Review:</h3>
+                                        <p>{aiReviewText}</p>
+                                        {isCachedReview && <p style={{ color: 'gray', fontStyle: 'italic' }}>This review is cached and hasn't changed from the previous generation.</p>}
+                                    </div>
+                                )}
+
                             </div>
                         ) : (
                             <div>
