@@ -139,7 +139,8 @@ function MapPage() {
     return (
         <>
             <LoadScript
-                googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}
+                //googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}
+                googleMapsApiKey={"AIzaSyAQzSw091TkcMWpTUrwP54WJH2jN-6pzKo"}
                 libraries={libraries}
             >
                 <div style={{ display: "flex", width: "100vw", height: "100vh", overflow: "hidden" }}>
@@ -162,8 +163,6 @@ function MapPage() {
                                     padding: "8px", marginBottom: "10px", backgroundColor: "#4285F4", color: "#fff", border: "none", borderRadius: "4px",
                                     transition: "background-color 0.3s ease", cursor: "pointer"
 
-                                }}>
-                                    Back to Results
                                 }}
                                 onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#357AE8"}
                                 onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#4285F4"}>
