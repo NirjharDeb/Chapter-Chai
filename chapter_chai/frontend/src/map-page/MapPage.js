@@ -21,6 +21,7 @@ function MapPage() {
         maxPrice: 4,
         minRating: 0
     });
+    const [isSettingsDropdownOpen, setIsSettingsDropdownOpen] = useState(false);
 
     const center = {
         lat: lat, 
@@ -136,10 +137,15 @@ function MapPage() {
         handleSearch(lat, lng);
     };
 
+    const toggleSettingsDropdown = () => {
+        setIsSettingsDropdownOpen(!isSettingsDropdownOpen);
+    };
+
     return (
         <>
             <LoadScript
-                googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}
+                //googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}
+                googleMapsApiKey={"AIzaSyAQzSw091TkcMWpTUrwP54WJH2jN-6pzKo"}
                 libraries={libraries}
             >
                 <div style={{ display: "flex", width: "100vw", height: "100vh", overflow: "hidden" }}>
@@ -161,7 +167,6 @@ function MapPage() {
                                 <button onClick={goBackToResults} style={{ 
                                     padding: "8px", marginBottom: "10px", backgroundColor: "#4285F4", color: "#fff", border: "none", borderRadius: "4px",
                                     transition: "background-color 0.3s ease", cursor: "pointer"
-
                                 }}
                                 onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#357AE8"}
                                 onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#4285F4"}>
@@ -384,6 +389,22 @@ function MapPage() {
                                 />
                             ))}
                         </GoogleMap>
+                        <img 
+                            src="settings.png"
+                            alt="Settings"
+                            onClick={toggleSettingsDropdown} 
+                            style={{
+                                width: "50px",
+                                height: "50px",
+                                position: "fixed", 
+                                top: "10px", 
+                                right: "10px", 
+                                cursor: "pointer",
+                                transition: "opacity 0.3s ease",
+                            }}
+                            onMouseOver={(e) => e.currentTarget.style.opacity = "0.7"}
+                            onMouseOut={(e) => e.currentTarget.style.opacity = "1"}
+                        />
                     </div>
                 </div>
             </LoadScript>
