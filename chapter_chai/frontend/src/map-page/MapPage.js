@@ -4,8 +4,8 @@ import { GoogleMap, LoadScript, Autocomplete, Marker } from '@react-google-maps/
 const libraries = ["places"];
 
 function MapPage() {
-    const [lat, setLat] = useState(33.77705); //default latitude
-    const [lng, setLng] = useState(-84.39896); //default longitude 
+    const [lat, setLat] = useState(33.77705); // default latitude
+    const [lng, setLng] = useState(-84.39896); // default longitude 
     const [map, setMap] = useState(null);
     const autocompleteref = useRef(null);
     const [placesService, setPlacesService] = useState(null);
@@ -90,6 +90,7 @@ function MapPage() {
                     name: place.name,
                     photo: place.photos ? place.photos[0].getUrl() : null,
                     rating: place.rating, // Show only the overall rating out of 5
+                    url: place.url,  // Google Maps URL for the place
                 });
             } else {
                 console.error("Failed to fetch place details:", status);
@@ -104,8 +105,6 @@ function MapPage() {
     return (
         <>
             <LoadScript
-
-                loadingElement={<div>Loading...</div>}
                 googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}
                 libraries={libraries}
             >
@@ -127,12 +126,30 @@ function MapPage() {
                         {selectedPlace ? (
                             // Place Details Tab
                             <div style={{ padding: "10px" }}>
-                                <button onClick={goBackToResults} style={{ padding: "8px", marginBottom: "10px", backgroundColor: "#CA6D5E", color: "#fff", border: "none", borderRadius: "4px" }}>
-                                    Back to Results
+
+                                <button onClick={goBackToResults} style={{ 
+                                    padding: "8px", marginBottom: "10px", backgroundColor: "#4285F4", color: "#fff", border: "none", borderRadius: "4px",
+                                    transition: "background-color 0.3s ease", cursor: "pointer"
+                                }}
+                                onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#357AE8"}
+                                onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#4285F4"}>
+
                                 </button>
                                 <h2>{selectedPlace.name}</h2>
                                 {selectedPlace.photo && <img src={selectedPlace.photo} alt={selectedPlace.name} style={{ width: "100%", height: "auto", borderRadius: "8px" }} />}
                                 <h3>Rating: {selectedPlace.rating ? `${selectedPlace.rating} / 5` : "No rating available"}</h3>
+                                
+                                {/* Clickable Google Maps link */}
+                                {selectedPlace.url && (
+                                    <a href={selectedPlace.url} target="_blank" rel="noopener noreferrer" style={{ 
+                                        display: "inline-block", marginTop: "10px", padding: "8px 16px", backgroundColor: "#34A853", color: "#fff", borderRadius: "4px",
+                                        textDecoration: "none", transition: "background-color 0.3s ease", cursor: "pointer"
+                                    }}
+                                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#2C8C46"}
+                                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#34A853"}>
+                                        View on Google Maps
+                                    </a>
+                                )}
                             </div>
                         ) : (
                             // Results Tab
@@ -156,8 +173,11 @@ function MapPage() {
                                     borderRadius: "4px",
                                     cursor: "pointer",
                                     boxSizing: "border-box",
-                                    width: "100%"
-                                }}>
+                                    width: "100%",
+                                    transition: "background-color 0.3s ease"
+                                }}
+                                onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#357AE8"}
+                                onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#4285F4"}>
                                     Search
                                 </button>
 
@@ -165,8 +185,11 @@ function MapPage() {
                                     <h3>Nearby Places</h3>
                                     <div>
                                         <button onClick={toggleBookstoreDropdown} style={{
-                                            padding: "8px", width: "100%", textAlign: "left", backgroundColor: "#f1f1f1", border: "1px solid #ddd", borderRadius: "4px", marginBottom: "10px", cursor: "pointer", boxSizing: "border-box"
-                                        }}>
+                                            padding: "8px", width: "100%", textAlign: "left", backgroundColor: "#f1f1f1", border: "1px solid #ddd", borderRadius: "4px", marginBottom: "10px", cursor: "pointer", boxSizing: "border-box",
+                                            transition: "background-color 0.3s ease"
+                                        }}
+                                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#e0e0e0"}
+                                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#f1f1f1"}>
                                             Bookstores ({bookstores.length})
                                         </button>
                                         {isBookstoreDropdownOpen && (
@@ -190,8 +213,11 @@ function MapPage() {
 
                                     <div>
                                         <button onClick={toggleCafeDropdown} style={{
-                                            padding: "8px", width: "100%", textAlign: "left", backgroundColor: "#f1f1f1", border: "1px solid #ddd", borderRadius: "4px", marginBottom: "10px", cursor: "pointer", boxSizing: "border-box"
-                                        }}>
+                                            padding: "8px", width: "100%", textAlign: "left", backgroundColor: "#f1f1f1", border: "1px solid #ddd", borderRadius: "4px", marginBottom: "10px", cursor: "pointer", boxSizing: "border-box",
+                                            transition: "background-color 0.3s ease"
+                                        }}
+                                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#e0e0e0"}
+                                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#f1f1f1"}>
                                             Cafes ({cafes.length})
                                         </button>
                                         {isCafeDropdownOpen && (
@@ -219,7 +245,7 @@ function MapPage() {
                     </div>
 
                     <div style={{ width: "calc(100vw - 320px)", height: "100vh", boxSizing: "border-box" }}>
-                    <GoogleMap
+                        <GoogleMap
                             mapContainerStyle={{ width: "100%", height: "100%" }}
                             center={center}
                             zoom={15}
