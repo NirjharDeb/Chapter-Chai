@@ -4,7 +4,7 @@ import axios from 'axios';
 
 const libraries = ["places"];
 // Hardcoded API key (for testing only; replace it securely in production)
-const OPENAI_API_KEY = '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';
+const OPENAI_API_KEY = 'test';
 
 function MapPage() {
     const [lat, setLat] = useState(33.77705);
