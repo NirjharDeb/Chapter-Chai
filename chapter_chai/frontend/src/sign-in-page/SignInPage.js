@@ -11,18 +11,25 @@ function SignInPage() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
-    const handleSubmit = () => {
-        // (console logs used in debugging for now)
+    const handleSubmit = async () => {
 
-        // TODO: take username and password and send to backend?
-        console.log("username:", username)
-        console.log("password:", password)
+        const apiURL = sign_in ? "/auth/login" : "/auth/register";
+        
+        const response = await fetch(apiURL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({username, password})
+        });
 
-        // TODO: also send whether its sign-in?
-        if (sign_in) {
-            console.log("signing in");
+        const data = await response.text();
+        if (response.ok) {
+            console.log(data);
+            alert(sign_in ? "Sign-in successful!" : "Account created!");
         } else {
-            console.log("create new account");
+            console.error(data);
+            alert("Error: " + data);
         }
     };
 

@@ -3,16 +3,20 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
 
-// import SignInPage from './sign-in-page/SignInPage';
+import SignInPage from './sign-in-page/SignInPage';
 import MapPage from './map-page/MapPage';
-// import App from './App';
+
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <MapPage />
-    {/* <SignInPage /> */}
-    {/* <App /> */}
+    <Router>
+      <Routes>
+        <Route path="/" Component={SignInPage} />
+        <Route path="/map" Component={MapPage} />
+      </Routes>
+    </Router>
   </React.StrictMode>
 );
 

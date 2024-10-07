@@ -167,6 +167,10 @@ function MapPage() {
         }
     };
 
+    const logout = () => {
+        
+    };
+
     // Function to call OpenAI API for review summary using /chat/completions
     const generateAIReview = async (placeId) => {
         if (!selectedPlace) return;
@@ -225,7 +229,7 @@ function MapPage() {
     return (
         <>
             <LoadScript
-                googleMapsApiKey={env.process.REACT_APP_GOOGLE_API_KEY}
+                googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}
                 libraries={libraries}
             >
                 <div style={{ display: "flex", width: "100vw", height: "100vh", overflow: "hidden" }}>
@@ -506,7 +510,7 @@ function MapPage() {
                                     borderBottom: '1px solid #ddd',
                                     cursor: 'pointer',
                                     transition: 'background-color 0.3s ease',
-                                }} onClick={() => { /* TODO */ }}>
+                                }} onClick={logout}>
                                     <strong>Log Out</strong>
                                 </li>
                                 <li style={{
