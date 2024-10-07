@@ -17,6 +17,7 @@ If you're a registered user, feel free to login via google!
 This is our first workable release of this app. Here are some things to keep in mind:
 - You can search for either bookstores or coffee shops of a location within a specified radius after logging in
 - Filter by price or review ratings using the filters above the coffee shop and bookstore tabs
+- If you want to make sure that the place you're going to is open, we have a filter for that too!
 - The Settings button will allow you to log out if you'd like to test logging in again
 - You can go through the map by searching for a location or panning through it
 - Our app is built for computers, so functionality may be limited on mobile
