@@ -168,7 +168,7 @@ function MapPage() {
     };
 
     const logout = () => {
-        
+
     };
 
     // Function to call OpenAI API for review summary using /chat/completions
@@ -247,12 +247,12 @@ function MapPage() {
                         {selectedPlace ? (
                             <div style={{ padding: "10px" }}>
                                 <button onClick={goBackToResults} style={{
-                                    padding: "8px", marginBottom: "10px", backgroundColor: "#4285F4", color: "#fff", border: "none", borderRadius: "4px",
-                                    transition: "background-color 0.3s ease", cursor: "pointer"
+                                    width: "90%", padding: "12px", marginBottom: "10px", backgroundColor: "#EFAE9F", color: "#fff", border: "none", borderRadius: "4px",
+                                    transition: "background-color 0.3s ease", cursor: "pointer", fontSize: "18px", fontWeight: "bold", textAlign: "center"
                                 }}
                                     onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#357AE8"}
                                     onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#4285F4"}>
-                                    Go Back
+                                    BACK TO RESULTS
                                 </button>
                                 <h2>{selectedPlace.name}</h2>
                                 {selectedPlace.photo && <img src={selectedPlace.photo} alt={selectedPlace.name} style={{ width: "100%", height: "auto", borderRadius: "8px" }} />}
@@ -260,10 +260,10 @@ function MapPage() {
                                 <h3>Price Level: {selectedPlace.price ? '💰'.repeat(selectedPlace.price) : "Price not available"}</h3>
                                 {selectedPlace.url && (
                                     <a href={selectedPlace.url} target="_blank" rel="noopener noreferrer" style={{
-                                        display: "inline-block", marginTop: "10px", padding: "8px 16px", backgroundColor: "#34A853", color: "#fff", borderRadius: "4px",
-                                        textDecoration: "none", transition: "background-color 0.3s ease", cursor: "pointer"
+                                        display: "inline-block", marginTop: "10px", padding: "12px", backgroundColor: "#77806F", color: "#fff", borderRadius: "4px",
+                                        textDecoration: "none", transition: "background-color 0.3s ease", cursor: "pointer", fontSize: "18px", fontWeight: "bold", textAlign: "center"
                                     }}>
-                                        View on Google Maps
+                                        VIEW ON GOOGLE MAPS
                                     </a>
                                 )}
 
