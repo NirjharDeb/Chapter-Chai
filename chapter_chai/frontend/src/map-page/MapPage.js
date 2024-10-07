@@ -225,7 +225,7 @@ function MapPage() {
     return (
         <>
             <LoadScript
-                googleMapsApiKey="AIzaSyAQzSw091TkcMWpTUrwP54WJH2jN-6pzKo"
+                googleMapsApiKey={env.process.REACT_APP_GOOGLE_API_KEY}
                 libraries={libraries}
             >
                 <div style={{ display: "flex", width: "100vw", height: "100vh", overflow: "hidden" }}>
@@ -482,7 +482,7 @@ function MapPage() {
                                 cursor: 'pointer',
                                 transition: 'opacity 0.3s ease',
                             }}
-                            src='settings.png'
+                            src='https://cdn.discordapp.com/attachments/1278357706666676228/1292642631335018536/settings.png?ex=67047ac3&is=67032943&hm=3dad938f24e6f0417e993d29777ad6513942bc249096c13abf0c307751178986&'
                             alt='Settings'
                             onClick={toggleSettingsDropdown} 
                             onMouseOver={(e) => e.currentTarget.style.opacity = "0.7"}
@@ -492,7 +492,7 @@ function MapPage() {
                             <ul style={{
                                 listStyleType: 'none',
                                 padding: '0',
-                                top: '40px',
+                                top: '50px',
                                 right: '10px',
                                 position: 'fixed', 
                                 boxSizing: 'border-box',
