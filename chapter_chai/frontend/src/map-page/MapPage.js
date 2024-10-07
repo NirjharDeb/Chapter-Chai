@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { GoogleMap, LoadScript, Autocomplete, Marker } from '@react-google-maps/api';
+import { GoogleMap, LoadScript, Autocomplete, Marker, Circle } from '@react-google-maps/api';
 import axios from 'axios';
 
 const libraries = ["places"];
@@ -22,9 +22,10 @@ function MapPage() {
         cafes: true,
         minPrice: 0,
         maxPrice: 4,
-        minRating: 0
+        minRating: 0,
+        searchRadius: 16093.4,
     });
-
+    const [searchRadius, setSearchRadius] = useState(16093.4);
     // Store AI review cache to prevent redundant API calls
     const [aiReviewCache, setAIReviewCache] = useState({});
     const [aiReviewText, setAIReviewText] = useState(""); // Store AI review text
@@ -39,7 +40,7 @@ function MapPage() {
         if (map && placesService) {
             handleSearch(lat, lng);
         }
-    }, [map, lat, lng, filters]);
+    }, [map, lat, lng, filters.searchRadius, filters.bookstores, filters.cafes, filters.minPrice, filters.maxPrice, filters.minRating]);
 
     const onPlaceChange = () => {
         const place = autocompleteref.current.getPlace();
@@ -57,7 +58,7 @@ function MapPage() {
             const request = {
                 keyword: keyword,
                 location,
-                radius: 16093.4,
+                radius: filters.searchRadius,
                 minPriceLevel: filters.minPrice,
                 maxPriceLevel: filters.maxPrice
             };
@@ -326,6 +327,26 @@ function MapPage() {
                                     </div>
                                 </div>
 
+                                {/* Search Radius Component */}
+
+                                <label htmlFor="radius">Search Radius: {(filters.searchRadius / 1609.34).toFixed(2)} miles</label>
+                                    <input
+                                        type="range"
+                                        id="radius"
+                                        name="radius"
+                                        min="1"
+                                        max="50"
+                                        value={filters.searchRadius / 1609.34}
+                                        onChange={(e) => {
+                                        const radiusInMeters = Number(e.target.value) * 1609.34;
+                                        setFilters((prevFilters) => ({
+                                            ...prevFilters,
+                                            searchRadius: radiusInMeters,
+                                        }));
+                                        setSearchRadius(radiusInMeters);
+                                        }}
+                                    />
+
                                 <div style={{ maxHeight: "calc(100vh - 350px)", overflowY: "auto", padding: "10px", boxSizing: "border-box" }}>
                                     <h3>Nearby Places</h3>
                                     <div>
@@ -438,6 +459,19 @@ function MapPage() {
                                     onClick={() => showPlaceDetails(cafe.place_id)}
                                 />
                             ))}
+
+                            {/* Display the search radius circle */}
+                            <Circle
+                            center={center}
+                            radius={filters.searchRadius}
+                            options={{
+                                fillColor: "#AA0000",
+                                fillOpacity: 0.2,
+                                strokeColor: "#AA0000",
+                                strokeOpacity: 0.5,
+                                strokeWeight: 1,
+                            }}
+                            />
                         </GoogleMap>
                         <img style={{
                                 width: '50px',
