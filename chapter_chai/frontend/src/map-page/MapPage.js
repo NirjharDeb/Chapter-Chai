@@ -226,7 +226,6 @@ function MapPage() {
         <>
             <LoadScript
                 googleMapsApiKey={env.process.REACT_APP_GOOGLE_API_KEY}
-                
                 libraries={libraries}
             >
                 <div style={{ display: "flex", width: "100vw", height: "100vh", overflow: "hidden" }}>
@@ -247,8 +246,8 @@ function MapPage() {
                                     width: "90%", padding: "12px", marginBottom: "10px", backgroundColor: "#EFAE9F", color: "#fff", border: "none", borderRadius: "4px",
                                     transition: "background-color 0.3s ease", cursor: "pointer", fontSize: "18px", fontWeight: "bold", textAlign: "center"
                                 }}
-                                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#357AE8"}
-                                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#4285F4"}>
+                                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#A35A4A"}
+                                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#EFAE9F"}>
                                     BACK TO RESULTS
                                 </button>
                                 <h2>{selectedPlace.name}</h2>
@@ -257,7 +256,7 @@ function MapPage() {
                                 <h3>Price Level: {selectedPlace.price ? '💰'.repeat(selectedPlace.price) : "Price not available"}</h3>
                                 {selectedPlace.url && (
                                     <a href={selectedPlace.url} target="_blank" rel="noopener noreferrer" style={{
-                                        display: "inline-block", marginTop: "10px", padding: "12px", backgroundColor: "#77806F", color: "#fff", borderRadius: "4px",
+                                        display: "inline-block", width: "90%", marginTop: "10px", marginBottom: "10px", padding: "12px", backgroundColor: "#77806F", color: "#fff", borderRadius: "4px",
                                         textDecoration: "none", transition: "background-color 0.3s ease", cursor: "pointer", fontSize: "18px", fontWeight: "bold", textAlign: "center"
                                     }}>
                                         VIEW ON GOOGLE MAPS
@@ -267,12 +266,12 @@ function MapPage() {
                                 {/* Generate AI Review button */}
                                 <button onClick={() => generateAIReview(selectedPlace.placeId)}
                                     style={{
-                                        padding: "8px", marginTop: "10px", backgroundColor: "#F39C12", color: "#fff", border: "none", borderRadius: "4px",
-                                        transition: "background-color 0.3s ease", cursor: "pointer"
+                                        display: "inline-block", width: "100%", padding: "12px", marginBottom: "10px", backgroundColor: "#A35A4A", color: "#fff", border: "none", borderRadius: "4px",
+                                    transition: "background-color 0.3s ease", cursor: "pointer", fontSize: "18px", fontWeight: "bold", textAlign: "center"
                                     }}
-                                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#E67E22"}
-                                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#F39C12"}>
-                                    Generate AI Review
+                                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#EFAE9F"}
+                                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#A35A4A"}>
+                                    GENERATE AI REVIEW
                                 </button>
 
                                 {/* AI Review Section */}
@@ -293,7 +292,7 @@ function MapPage() {
                                 >
                                     <input
                                         type="text"
-                                        placeholder="   SEARCH   "
+                                        placeholder="SEARCH...   "
                                         className="search-input"
                                         style={{ padding: "8px", width: "100%", fontSize: "14px", border: "1px solid #dcdcdc", borderRadius: "4px", marginBottom: "10px", boxSizing: "border-box" }}
                                     />
@@ -352,10 +351,10 @@ function MapPage() {
                                     <h3>Nearby Places</h3>
                                     <div>
                                         <button onClick={toggleBookstoreDropdown} style={{
-                                            padding: "8px", width: "100%", textAlign: "left", backgroundColor: "#f1f1f1", border: "1px solid #ddd", borderRadius: "4px", marginBottom: "10px", cursor: "pointer", boxSizing: "border-box",
-                                            transition: "background-color 0.3s ease"
+                                            padding: "8px", width: "100%", textAlign: "center", backgroundColor: "#CA6D5E", border: "1px solid #ddd", borderRadius: "4px", marginBottom: "10px", cursor: "pointer", boxSizing: "border-box",
+                                            transition: "background-color 0.3s ease", fontSize: "18px", fontWeight: "bold", color: "#fff"
                                         }}>
-                                            Bookstores ({bookstores.length})
+                                            BOOKSTORES ({bookstores.length})
                                         </button>
                                         {isBookstoreDropdownOpen && (
                                             <ul style={{ listStyleType: "none", padding: "0", marginBottom: "10px", boxSizing: "border-box" }}>
@@ -382,10 +381,10 @@ function MapPage() {
 
                                     <div>
                                         <button onClick={toggleCafeDropdown} style={{
-                                            padding: "8px", width: "100%", textAlign: "left", backgroundColor: "#f1f1f1", border: "1px solid #ddd", borderRadius: "4px", marginBottom: "10px", cursor: "pointer", boxSizing: "border-box",
-                                            transition: "background-color 0.3s ease"
+                                            padding: "8px", width: "100%", textAlign: "center", backgroundColor: "#CA6D5E", border: "1px solid #ddd", borderRadius: "4px", marginBottom: "10px", cursor: "pointer", boxSizing: "border-box",
+                                            transition: "background-color 0.3s ease", fontSize: "18px", fontWeight: "bold", color: "#fff"
                                         }}>
-                                            Cafes ({cafes.length})
+                                            CAFES ({cafes.length})
                                         </button>
                                         {isCafeDropdownOpen && (
                                             <ul style={{ listStyleType: "none", padding: "0", marginBottom: "10px", boxSizing: "border-box" }}>
