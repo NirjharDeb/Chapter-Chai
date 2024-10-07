@@ -16,10 +16,9 @@ function SignInPage() {
         const apiURL = sign_in ? "/auth/login" : "/auth/register";
         
         const response = await fetch(apiURL, {
+            credentials: "include",
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: {"Content-Type": "application/json",},
             body: JSON.stringify({username, password})
         });
 

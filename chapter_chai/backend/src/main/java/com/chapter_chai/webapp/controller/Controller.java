@@ -5,15 +5,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
 
 
 
 @RestController
-@RequestMapping("/auth")
 public class Controller {
 
-    @PostMapping("/login")
+    @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest request) {
         // In a real-world app, you'd authenticate the user, generate a token, and return it
         // For now, we're simulating success/failure.
@@ -24,10 +26,10 @@ public class Controller {
         }
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody AuthRequest request) {
+    @PostMapping("/auth/register")
+    public ResponseEntity<?> register(@RequestBody Map<String, String> request) {
         // Here you would add logic for registering a new user, e.g., saving to DB
-        return ResponseEntity.ok("New account created for user: " + request.getUsername());
+        return ResponseEntity.ok("New account created for user: " + request.get("username"));
     }
 }
 
