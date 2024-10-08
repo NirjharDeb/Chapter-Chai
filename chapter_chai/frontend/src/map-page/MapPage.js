@@ -35,19 +35,57 @@ function MapPage() {
     const [zoom, setZoom] = useState(15);
     const [isSettingsDropdownOpen, setIsSettingsDropdownOpen] = useState(false);
     const center = { lat: lat, lng: lng };
+    // Utility function to clamp a value between min and max
+    const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
+    // Linear interpolation function
+    const lerp = (value, inputMin, inputMax, outputMin, outputMax) => {
+    return outputMin + ((value - inputMin) * (outputMax - outputMin)) / (inputMax - inputMin);
+    };
     useEffect(() => {
         if (map && placesService) {
             handleSearch(lat, lng);
         }
     }, [map, lat, lng, filters]);
 
+    useEffect(() => {
+        if (map) {
+          const newZoom = getZoomLevel(searchRadius);
+          setZoom(newZoom);
+          map.setZoom(newZoom);
+          map.panTo(center);
+        }
+    }, [searchRadius, map, center]);
+    
     const onPlaceChange = () => {
         const place = autocompleteref.current.getPlace();
         if (place && place.geometry) {
             setLat(place.geometry.location.lat());
             setLng(place.geometry.location.lng());
         }
+    };
+
+    const getZoomLevel = (radius) => {
+        const minZoom = 8; // Max zoom out
+        const maxZoom = 15; // Max zoom in
+        const minRadius = 1609.34; // 1 mile in meters
+        const maxRadius = 80467; // 50 miles in meters
+
+        if (radius < minRadius) radius = minRadius;
+        if (radius > maxRadius) radius = maxRadius;
+
+        // Invert the mapping because larger radius should have lower zoom
+        const zoom = lerp(radius, minRadius, maxRadius, maxZoom, minZoom);
+        return clamp(Math.round(zoom), minZoom, maxZoom);
+    };
+
+    const handleRadiusChange = (event) => {
+        const radiusInMeters = Number(event.target.value) * 1609.34; // Convert miles to meters
+        setFilters((prevFilters) => ({
+          ...prevFilters,
+          searchRadius: radiusInMeters,
+        }));
+        setSearchRadius(radiusInMeters);
     };
 
     const handleSearch = (lat, lng) => {
@@ -347,16 +385,8 @@ function MapPage() {
                                     name="radius"
                                     min="1"
                                     max="50"
-                                    color="#77806F"
-                                    value={filters.searchRadius / 1609.34}
-                                    onChange={(e) => {
-                                        const radiusInMeters = Number(e.target.value) * 1609.34;
-                                        setFilters((prevFilters) => ({
-                                            ...prevFilters,
-                                            searchRadius: radiusInMeters,
-                                        }));
-                                        setSearchRadius(radiusInMeters);
-                                    }}
+                                    value={(searchRadius / 1609.34).toFixed(2)}
+                                    onChange={handleRadiusChange}
                                 />
 
                                 <div style={{ maxHeight: "calc(100vh - 350px)", overflowY: "auto", padding: "10px", boxSizing: "border-box", textAlign: "center" }}>
