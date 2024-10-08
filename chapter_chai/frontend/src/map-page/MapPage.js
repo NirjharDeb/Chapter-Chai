@@ -54,15 +54,16 @@ function MapPage() {
         if (!placesService) return;
         const location = new window.google.maps.LatLng(lat, lng);
 
-        const searchPlaces = (keyword, setPlaces) => {
+        const searchPlaces = (keyword, setPlaces, applyPriceFilter = false) => {
             const request = {
                 keyword: keyword,
                 location,
                 radius: filters.searchRadius,
-                minPriceLevel: filters.minPrice,
-                maxPriceLevel: filters.maxPrice,
+                minPriceLevel: applyPriceFilter ? filters.minPrice : undefined,
+                maxPriceLevel: applyPriceFilter ? filters.maxPrice : undefined,
                 openNow: filters.openNow // Use Google Places API's "openNow" filter
             };
+            Object.keys(request).forEach(key => request[key] === undefined && delete request[key]);
             placesService.nearbySearch(request, (results, status) => {
                 if (status === window.google.maps.places.PlacesServiceStatus.OK) {
                     const filteredResults = results.filter(place => place.rating >= filters.minRating);
@@ -76,13 +77,13 @@ function MapPage() {
         };
 
         if (filters.bookstores) {
-            searchPlaces("Bookstores", setBookstores);
+            searchPlaces("Bookstores", setBookstores, false);
         } else {
             setBookstores([]);
         }
 
         if (filters.cafes) {
-            searchPlaces("Cafe", setCafes);
+            searchPlaces("Cafe", setCafes, true);
         } else {
             setCafes([]);
         }
@@ -226,7 +227,7 @@ function MapPage() {
     return (
         <>
             <LoadScript
-                googleMapsApiKey={env.process.REACT_APP_GOOGLE_API_KEY}
+                googleMapsApiKey= {process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
                 libraries={libraries}
             >
                 <div style={{ display: "flex", width: "100vw", height: "100vh", overflow: "hidden" }}>
@@ -303,7 +304,7 @@ function MapPage() {
                                 <div style={{ marginTop: "20px", marginBottom: "20px" }}>
                                     <h3>Filters</h3>
                                     <div style={{ marginBottom: "10px" }}>
-                                        <label htmlFor="price-range">Price Range:</label>
+                                        <label htmlFor="price-range">Price Range for Cafes:</label>
                                         <select id="price-range" onChange={handlePriceChange} value={`${filters.minPrice},${filters.maxPrice}`} style={{ width: "100%", padding: "5px" }}>
                                             <option value="0,4">Any</option>
                                             <option value="0,1">$</option>
