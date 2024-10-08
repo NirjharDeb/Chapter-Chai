@@ -500,38 +500,20 @@ function MapPage() {
                         {isSettingsDropdownOpen && (
                             <ul style={{
                                 listStyleType: 'none',
-                                padding: '0',
                                 top: '50px',
                                 right: '10px',
-                                position: 'fixed', 
+                                position: 'fixed',
                                 boxSizing: 'border-box',
                                 backgroundColor: '#FDFAF9',
-                                border: '1px solid #ddd',
                                 borderRadius: '4px',
-                                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
+                                boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
                             }}>
                                 <li style={{
-                                    padding: '8px',
-                                    borderBottom: '1px solid #ddd',
-                                    cursor: 'pointer',
-                                    transition: 'background-color 0.3s ease',
-                                }} onClick={() => { /* TODO */ }}>
-                                    <strong>Log Out</strong>
-                                </li>
-                                <li style={{
-                                    padding: '8px',
                                     borderBottom: '1px solid #ddd',
                                     cursor: 'pointer',
                                     transition: 'background-color 0.3s ease',
                                 }} onClick={resetMap}>
                                     <strong>Reset Map</strong>
-                                </li>
-                                <li style={{
-                                    padding: '8px',
-                                    cursor: 'pointer',
-                                    transition: 'background-color 0.3s ease',
-                                }} onClick={() => { /* TODO */ }}>
-                                    <strong>Refresh</strong>
                                 </li>
                             </ul>
                         )}
