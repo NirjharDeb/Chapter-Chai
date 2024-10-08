@@ -245,7 +245,7 @@ function MapPage() {
                         {selectedPlace ? (
                             <div style={{ padding: "10px" }}>
                                 <button onClick={goBackToResults} style={{
-                                    width: "90%", padding: "12px", marginBottom: "10px", backgroundColor: "#EFAE9F", color: "#FDFAF9", border: "none", borderRadius: "4px",
+                                    width: "100%", padding: "12px", marginBottom: "10px", backgroundColor: "#EFAE9F", color: "#FDFAF9", border: "none", borderRadius: "4px",
                                     transition: "background-color 0.3s ease", cursor: "pointer", fontSize: "18px", fontWeight: "bold", textAlign: "center"
                                 }}
                                     onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#A35A4A"}
@@ -254,10 +254,10 @@ function MapPage() {
                                 </button>
                                 <h2>{selectedPlace.name}</h2>
                                 {selectedPlace.photo && <img src={selectedPlace.photo} alt={selectedPlace.name} style={{ width: "100%", height: "auto", borderRadius: "8px" }} />}
-                                <h3>Rating: {selectedPlace.rating ? `${selectedPlace.rating} / 5` : "No rating available"}</h3>
-                                <h3>Price Level: {selectedPlace.price ? '💰'.repeat(selectedPlace.price) : "Price not available"}</h3>
+                                <h3> ⭐ Rating: {selectedPlace.rating ? `${selectedPlace.rating} / 5` : "No rating available"}</h3>
+                                <h3> 💰 Price Level: {selectedPlace.price ? '💰'.repeat(selectedPlace.price) : "not available"}</h3>
                                 {selectedPlace.opening_hours && (
-                                    <p>Open Now: {selectedPlace.opening_hours.isOpen() ? 'Yes' : 'No'}</p>
+                                    <h3> 🕰️ Open Now: {selectedPlace.opening_hours.isOpen() ? 'Yes' : 'No'}</h3>
                                 )}
                                 {selectedPlace.url && (
                                     <a href={selectedPlace.url} target="_blank" rel="noopener noreferrer" style={{
@@ -359,14 +359,14 @@ function MapPage() {
                                     }}
                                 />
 
-                                <div style={{ maxHeight: "calc(100vh - 350px)", overflowY: "auto", padding: "10px", boxSizing: "border-box" }}>
-                                    <h3>Nearby Places</h3>
+                                <div style={{ maxHeight: "calc(100vh - 350px)", overflowY: "auto", padding: "10px", boxSizing: "border-box", textAlign: "center" }}>
+                                    <h3>📚 🍵 NEARBY PLACES 🍵 📚</h3>
                                     <div>
                                         <button onClick={toggleBookstoreDropdown} style={{
                                             padding: "8px", width: "100%", textAlign: "center", backgroundColor: "#CA6D5E", border: "1px solid #ddd", borderRadius: "4px", marginBottom: "10px", cursor: "pointer", boxSizing: "border-box",
                                             transition: "background-color 0.3s ease", fontSize: "18px", fontWeight: "bold", color: "#FDFAF9"
                                         }}>
-                                            BOOKSTORES ({bookstores.length})
+                                            📚 BOOKSTORES ({bookstores.length})
                                         </button>
                                         {isBookstoreDropdownOpen && (
                                             <ul style={{ listStyleType: "none", padding: "0", marginBottom: "10px", boxSizing: "border-box" }}>
@@ -384,7 +384,7 @@ function MapPage() {
                                                         <br />
                                                         Rating: {place.rating} / 5
                                                         <br />
-                                                        Price: {'💰'.repeat(place.price_level || 0)}
+                                                        Price: {place.price_level ? '💰'.repeat(place.price_level) : "not available"}
                                                     </li>
                                                 ))}
                                             </ul>
@@ -393,10 +393,10 @@ function MapPage() {
 
                                     <div>
                                         <button onClick={toggleCafeDropdown} style={{
-                                            padding: "8px", width: "100%", textAlign: "center", backgroundColor: "#CA6D5E", border: "1px solid #ddd", borderRadius: "4px", marginBottom: "10px", cursor: "pointer", boxSizing: "border-box",
+                                            padding: "8px", width: "100%", textAlign: "center", backgroundColor: "#CA6D5E", border: "none", borderRadius: "4px", marginBottom: "10px", cursor: "pointer", boxSizing: "border-box",
                                             transition: "background-color 0.3s ease", fontSize: "18px", fontWeight: "bold", color: "#FDFAF9"
                                         }}>
-                                            CAFES ({cafes.length})
+                                            🍵 CAFES ({cafes.length})
                                         </button>
                                         {isCafeDropdownOpen && (
                                             <ul style={{ listStyleType: "none", padding: "0", marginBottom: "10px", boxSizing: "border-box" }}>
