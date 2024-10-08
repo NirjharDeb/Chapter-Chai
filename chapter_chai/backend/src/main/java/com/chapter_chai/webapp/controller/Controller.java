@@ -1,28 +1,56 @@
 package com.chapter_chai.webapp.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
+import java.util.ArrayList;
 import org.springframework.web.bind.annotation.RestController;
-
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-
-import java.util.Map;
-
 import org.springframework.http.ResponseEntity;
 
+import java.util.Map;
+import org.springframework.http.ResponseEntity;
+
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+// import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.GetMapping;
 
 
 @RestController
 public class Controller {
+    @GetMapping("/auth/check")
+    public ResponseEntity<?> checkAuth() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated()) {
+            return ResponseEntity.ok().body("{\"message\": \"User authenticated\"}");
+        }
+        return ResponseEntity.status(401).body("{\"message\": \"User NOT AUTHENTICATED\"}");
+    }
+    
 
     @PostMapping("/auth/login")
-    public ResponseEntity<?> login(@RequestBody AuthRequest request) {
-        // In a real-world app, you'd authenticate the user, generate a token, and return it
-        // For now, we're simulating success/failure.
-        if ("user".equals(request.getUsername()) && "password".equals(request.getPassword())) {
-            return ResponseEntity.ok("User logged in successfully");
+    public ResponseEntity<?> login(@RequestBody Map<String, String> request) {
+        // Simulating user authentication, replace with DB-based authentication
+        if ("user".equals(request.get("username")) && "password".equals(request.get("password"))) {
+            // creates user role
+            Role role = new Role("ROLE_USER");
+            ArrayList<Role> roles = new ArrayList<>();
+            roles.add(role);
+            UserDetails userDetails = new User(request.get("username"), request.get("password"), roles);
+
+            // authenticates user
+            Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), null); // userDetails, password, authorities
+            // SecurityContext context = SecurityContextHolder.createEmptyContext();
+            // context.setAuthentication(auth);
+            // SecurityContextHolder.setContext(context);
+            SecurityContextHolder.getContext().setAuthentication(auth);
+
+            return ResponseEntity.ok().body("{\"message\": \"User logged in successfully\"}");
         } else {
-            return ResponseEntity.status(401).body("Invalid credentials");
+            return ResponseEntity.status(401).body("{\"message\": \"Invalid credentials\"}");
         }
     }
 
@@ -33,14 +61,15 @@ public class Controller {
     }
 }
 
-// Data class to handle incoming JSON requests
-class AuthRequest {
-    private String username;
-    private String password;
+class Role implements GrantedAuthority {
+    private final String id;
 
-    // getters and setters
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
+    public Role(String name) {
+        id = name;
+    }
+
+    @Override
+    public String getAuthority() {
+        return id;
+    }
 }

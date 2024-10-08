@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import './SignInPage.css';
+import { redirect } from 'react-router-dom';
 
 function SignInPage() {
 
@@ -11,6 +12,20 @@ function SignInPage() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
+    const checkAuth = async () => {
+        const response = await fetch("/auth/check", {
+            credentials: "include",
+            method: "GET",
+            headers: {"Content-Type": "application/json"}
+        });
+        const data = await response.json();
+        if (response.ok) {
+            console.log("Authenticated:", data);
+        } else {
+            console.error("NOT authenticated:", data);
+        }
+    };
+
     const handleSubmit = async () => {
 
         const apiURL = sign_in ? "/auth/login" : "/auth/register";
@@ -18,17 +33,21 @@ function SignInPage() {
         const response = await fetch(apiURL, {
             credentials: "include",
             method: "POST",
-            headers: {"Content-Type": "application/json",},
+            headers: {"Content-Type": "application/json"},
             body: JSON.stringify({username, password})
         });
 
-        const data = await response.text();
+        const data = await response.json();
         if (response.ok) {
             console.log(data);
-            alert(sign_in ? "Sign-in successful!" : "Account created!");
+            // alert(sign_in ? "Sign-in successful!" : "Account created!");
+
+            await checkAuth();
+            const resp = redirect("/map");
+            console.log(resp);
         } else {
             console.error(data);
-            alert("Error: " + data);
+            alert("Error: " + data.message);
         }
     };
 

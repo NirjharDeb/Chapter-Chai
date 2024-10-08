@@ -5,6 +5,7 @@ import reportWebVitals from './reportWebVitals';
 
 import SignInPage from './sign-in-page/SignInPage';
 import MapPage from './map-page/MapPage';
+import ProtectedRoute from './ProtectedRoute';
 
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
@@ -14,7 +15,7 @@ root.render(
     <Router>
       <Routes>
         <Route path="/" Component={SignInPage} />
-        <Route path="/map" Component={MapPage} />
+        <Route path="/map" Component={() => <ProtectedRoute Component={MapPage} />} />
       </Routes>
     </Router>
   </React.StrictMode>
