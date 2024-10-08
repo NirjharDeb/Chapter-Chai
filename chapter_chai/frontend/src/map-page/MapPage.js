@@ -14,6 +14,8 @@ function MapPage() {
     const [placesService, setPlacesService] = useState(null);
     const [bookstores, setBookstores] = useState([]);
     const [cafes, setCafes] = useState([]);
+    const [maxBookstores, setMaxBookstores] = useState(10);
+    const [maxCafes, setMaxCafes] = useState(10);
     const [isBookstoreDropdownOpen, setIsBookstoreDropdownOpen] = useState(false);
     const [isCafeDropdownOpen, setIsCafeDropdownOpen] = useState(false);
     const [selectedPlace, setSelectedPlace] = useState(null);
@@ -38,14 +40,10 @@ function MapPage() {
     // Utility function to clamp a value between min and max
     const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
-
     // Linear interpolation function
     const lerp = (value, inputMin, inputMax, outputMin, outputMax) => {
     return outputMin + ((value - inputMin) * (outputMax - outputMin)) / (inputMax - inputMin);
     };
-
-    const [maxBookstores, setMaxBookstores] = useState(10);
-    const [maxCafes, setMaxCafes] = useState(10);
     useEffect(() => {
         if (map && placesService) {
             handleSearch(lat, lng);
@@ -131,14 +129,6 @@ function MapPage() {
         }
     };
 
-    const toggleBookstoreDropdown = () => {
-        setIsBookstoreDropdownOpen(!isBookstoreDropdownOpen);
-    };
-
-    const toggleCafeDropdown = () => {
-        setIsCafeDropdownOpen(!isCafeDropdownOpen);
-    };
-
     const showPlaceDetails = (placeId) => {
         setOriginalCenter({ lat, lng });
         setZoom(zoom);
@@ -202,10 +192,6 @@ function MapPage() {
             ...prevFilters,
             openNow: !prevFilters.openNow
         }));
-    };
-
-    const toggleSettingsDropdown = () => {
-        setIsSettingsDropdownOpen(!isSettingsDropdownOpen);
     };
 
     const resetMap = () => {
@@ -422,7 +408,7 @@ function MapPage() {
                                 <div style={{ maxHeight: "calc(100vh - 350px)", overflowY: "auto", padding: "10px", boxSizing: "border-box", textAlign: "center" }}>
                                     <h3>📚 🍵 NEARBY PLACES 🍵 📚</h3>
                                     <div>
-                                        <button onClick={toggleBookstoreDropdown} style={{
+                                        <button onClick={() => setIsBookstoreDropdownOpen(!isBookstoreDropdownOpen)} style={{
                                             padding: "8px", width: "100%", textAlign: "center", backgroundColor: "#CA6D5E", border: "1px solid #ddd", borderRadius: "4px", marginBottom: "10px", cursor: "pointer", boxSizing: "border-box",
                                             transition: "background-color 0.3s ease", fontSize: "18px", fontWeight: "bold", color: "#FDFAF9"
                                         }}>
@@ -452,7 +438,7 @@ function MapPage() {
                                     </div>
 
                                     <div>
-                                        <button onClick={toggleCafeDropdown} style={{
+                                        <button onClick={() => setIsCafeDropdownOpen(!isCafeDropdownOpen)} style={{
                                             padding: "8px", width: "100%", textAlign: "center", backgroundColor: "#CA6D5E", border: "none", borderRadius: "4px", marginBottom: "10px", cursor: "pointer", boxSizing: "border-box",
                                             transition: "background-color 0.3s ease", fontSize: "18px", fontWeight: "bold", color: "#FDFAF9"
                                         }}>
@@ -553,7 +539,7 @@ function MapPage() {
                             }}
                             src='https://cdn.discordapp.com/attachments/1278357706666676228/1292642631335018536/settings.png?ex=67047ac3&is=67032943&hm=3dad938f24e6f0417e993d29777ad6513942bc249096c13abf0c307751178986&'
                             alt='Settings'
-                            onClick={toggleSettingsDropdown} 
+                            onClick={() => setIsSettingsDropdownOpen(!isSettingsDropdownOpen)} 
                             onMouseOver={(e) => e.currentTarget.style.opacity = "0.7"}
                             onMouseOut={(e) => e.currentTarget.style.opacity = "1"}
                         />
