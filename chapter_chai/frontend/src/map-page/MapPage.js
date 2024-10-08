@@ -38,10 +38,14 @@ function MapPage() {
     // Utility function to clamp a value between min and max
     const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
+
     // Linear interpolation function
     const lerp = (value, inputMin, inputMax, outputMin, outputMax) => {
     return outputMin + ((value - inputMin) * (outputMax - outputMin)) / (inputMax - inputMin);
     };
+
+    const [maxBookstores, setMaxBookstores] = useState(10);
+    const [maxCafes, setMaxCafes] = useState(10);
     useEffect(() => {
         if (map && placesService) {
             handleSearch(lat, lng);
@@ -265,7 +269,7 @@ function MapPage() {
     return (
         <>
             <LoadScript
-                googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
+                googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}
                 libraries={libraries}
             >
                 <div style={{ display: "flex", width: "100vw", height: "100vh", overflow: "hidden" }}>
@@ -339,7 +343,7 @@ function MapPage() {
                                     />
                                 </Autocomplete>
 
-                                <div style={{ marginTop: "20px", marginBottom: "20px" }}>
+                                <div style={{ marginTop: "20px", marginBottom: "10px" }}>
                                     <h3>Filters</h3>
                                     <div style={{ marginBottom: "10px" }}>
                                         <label htmlFor="price-range">Price Range for Cafes:</label>
@@ -376,6 +380,32 @@ function MapPage() {
                                             style={{ marginLeft: "10px" }}
                                         />
                                     </div>
+                                    <div style={{display: "flex", justifyContent: "space-around", marginTop: "5px"}}>
+                                        <div style={{display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center"}}>
+                                            <label htmlFor="max-books">Max Bookstores:</label>
+                                            <input
+                                                type="number"
+                                                id="max-books"
+                                                defaultValue={maxBookstores}
+                                                min={0}
+                                                max={25}
+                                                onChange={(e) => setMaxBookstores(e.target.value)}
+                                                style={{width: "50px", textAlign: "center"}}
+                                            />
+                                        </div>
+                                        <div style={{display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center"}}>
+                                            <label htmlFor="max-cafes">Max Cafes:</label>
+                                            <input
+                                                type="number"
+                                                id="max-cafes"
+                                                defaultValue={maxCafes}
+                                                min={0}
+                                                max={25}
+                                                onChange={(e) => setMaxCafes(e.target.value)}
+                                                style={{width: "50px", textAlign: "center"}}
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <label htmlFor="radius">Search Radius: {(filters.searchRadius / 1609.34).toFixed(2)} miles</label>
@@ -396,11 +426,11 @@ function MapPage() {
                                             padding: "8px", width: "100%", textAlign: "center", backgroundColor: "#CA6D5E", border: "1px solid #ddd", borderRadius: "4px", marginBottom: "10px", cursor: "pointer", boxSizing: "border-box",
                                             transition: "background-color 0.3s ease", fontSize: "18px", fontWeight: "bold", color: "#FDFAF9"
                                         }}>
-                                            📚 BOOKSTORES ({bookstores.length})
+                                            📚 BOOKSTORES ({Math.min(bookstores.length, maxBookstores)})
                                         </button>
                                         {isBookstoreDropdownOpen && (
                                             <ul style={{ listStyleType: "none", padding: "0", marginBottom: "10px", boxSizing: "border-box" }}>
-                                                {bookstores.map((place, index) => (
+                                                {bookstores.slice(0, Math.min(bookstores.length, maxBookstores)).map((place, index) => (
                                                     <li key={index} style={{
                                                         padding: "8px", borderBottom: "1px solid #ddd", cursor: "pointer",
                                                         transition: "background-color 0.3s ease",
@@ -426,11 +456,11 @@ function MapPage() {
                                             padding: "8px", width: "100%", textAlign: "center", backgroundColor: "#CA6D5E", border: "none", borderRadius: "4px", marginBottom: "10px", cursor: "pointer", boxSizing: "border-box",
                                             transition: "background-color 0.3s ease", fontSize: "18px", fontWeight: "bold", color: "#FDFAF9"
                                         }}>
-                                            🍵 CAFES ({cafes.length})
+                                            🍵 CAFES ({Math.min(cafes.length, maxCafes)})
                                         </button>
                                         {isCafeDropdownOpen && (
                                             <ul style={{ listStyleType: "none", padding: "0", marginBottom: "10px", boxSizing: "border-box" }}>
-                                                {cafes.map((place, index) => (
+                                                {cafes.slice(0, Math.min(cafes.length, maxCafes)).map((place, index) => (
                                                     <li key={index} style={{
                                                         padding: "8px", borderBottom: "1px solid #ddd", cursor: "pointer",
                                                         transition: "background-color 0.3s ease",
@@ -470,7 +500,7 @@ function MapPage() {
                                 fullscreenControl: false,
                             }}
                         >
-                            {filters.bookstores && bookstores.map((bookstore, index) => (
+                            {filters.bookstores && bookstores.slice(0, Math.min(bookstores.length, maxBookstores)).map((bookstore, index) => (
                                 <Marker
                                     key={`bookstore-${index}`}
                                     position={{
@@ -485,7 +515,7 @@ function MapPage() {
                                 />
                             ))}
 
-                            {filters.cafes && cafes.map((cafe, index) => (
+                            {filters.cafes && cafes.slice(0, Math.min(cafes.length, maxCafes)).map((cafe, index) => (
                                 <Marker
                                     key={`cafe-${index}`}
                                     position={{
