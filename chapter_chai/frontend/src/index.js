@@ -3,16 +3,12 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
 
-// import SignInPage from './sign-in-page/SignInPage';
 import MapPage from './map-page/MapPage';
-// import App from './App';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <MapPage />
-    {/* <SignInPage /> */}
-    {/* <App /> */}
   </React.StrictMode>
 );
 
