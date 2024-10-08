@@ -3,21 +3,13 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
 
-import SignInPage from './sign-in-page/SignInPage';
+// import SignInPage from './sign-in-page/SignInPage';
 import MapPage from './map-page/MapPage';
-import ProtectedRoute from './ProtectedRoute';
-
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <Router>
-      <Routes>
-        <Route path="/" Component={SignInPage} />
-        <Route path="/map" Component={() => <ProtectedRoute Component={MapPage} />} />
-      </Routes>
-    </Router>
+    <MapPage />
   </React.StrictMode>
 );
 
