@@ -1,70 +1,23 @@
-# Getting Started with Create React App
+# Chapter-Chai
+Our project aims to develop an app that helps users find coffee shops and bookstores in a specified area. Using common APIs, the app simplifies the search for places to relax and enjoy coffee, especially in unfamiliar locations. The goal is to provide a quick, easy way to discover nearby coffee shops and bookstores.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Installation Guide
+If you are interested in visiting our website while it is active on GCP, feel free to visit our link here: [link for once we push to gcloud]
 
-## Available Scripts
+If you would like to run a local instance of this project, open your terminal and change directories to \chapter_chai\backend.
 
-In the project directory, you can run:
+Afterwards, run the command 'mvn package', which should put the code into a JAR from which the application will run.
 
-### `npm start`
+To test the web app, run 'mvn spring-boot:run' and visit "http://localhost:8080/"
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+If you're a registered user, feel free to login via google!
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Release Notes (1.0.0)
 
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+This is our first workable release of this app. Here are some things to keep in mind:
+- You can search for either bookstores or coffee shops of a location within a specified radius after logging in
+- Filter by price or review ratings using the filters above the coffee shop and bookstore tabs
+- If you want to make sure that the place you're going to is open, we have a filter for that too!
+- The Settings button will allow you to log out if you'd like to test logging in again
+- You can go through the map by searching for a location or panning through it
+- Our app is built for computers, so functionality may be limited on mobile
