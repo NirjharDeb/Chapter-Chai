@@ -24,12 +24,12 @@ function MapPage() {
         maxPrice: 4,
         minRating: 0,
         searchRadius: 16093.4,
+        openNow: false // New filter for places open now
     });
     const [searchRadius, setSearchRadius] = useState(16093.4);
-    // Store AI review cache to prevent redundant API calls
     const [aiReviewCache, setAIReviewCache] = useState({});
-    const [aiReviewText, setAIReviewText] = useState(""); // Store AI review text
-    const [isCachedReview, setIsCachedReview] = useState(false); // Store cache status
+    const [aiReviewText, setAIReviewText] = useState(""); 
+    const [isCachedReview, setIsCachedReview] = useState(false); 
 
     const [originalCenter, setOriginalCenter] = useState({ lat, lng });
     const [zoom, setZoom] = useState(15);
@@ -40,7 +40,7 @@ function MapPage() {
         if (map && placesService) {
             handleSearch(lat, lng);
         }
-    }, [map, lat, lng, filters.searchRadius, filters.bookstores, filters.cafes, filters.minPrice, filters.maxPrice, filters.minRating]);
+    }, [map, lat, lng, filters]);
 
     const onPlaceChange = () => {
         const place = autocompleteref.current.getPlace();
@@ -60,7 +60,8 @@ function MapPage() {
                 location,
                 radius: filters.searchRadius,
                 minPriceLevel: filters.minPrice,
-                maxPriceLevel: filters.maxPrice
+                maxPriceLevel: filters.maxPrice,
+                openNow: filters.openNow // Use Google Places API's "openNow" filter
             };
             placesService.nearbySearch(request, (results, status) => {
                 if (status === window.google.maps.places.PlacesServiceStatus.OK) {
@@ -102,16 +103,17 @@ function MapPage() {
         placesService.getDetails({ placeId }, (place, status) => {
             if (status === window.google.maps.places.PlacesServiceStatus.OK) {
                 setSelectedPlace({
-                    placeId: placeId, // Store the placeId for future API calls
+                    placeId: placeId, 
                     name: place.name,
                     photo: place.photos ? place.photos[0].getUrl() : null,
                     rating: place.rating,
                     price: place.price_level,
                     url: place.url,
                     reviews: place.reviews || [],
+                    opening_hours: place.opening_hours // Store opening hours
                 });
-                setAIReviewText(""); // Reset AI review text
-                setIsCachedReview(false); // Reset cache status
+                setAIReviewText(""); 
+                setIsCachedReview(false); 
                 if (map) {
                     setLat(place.geometry.location.lat());
                     setLng(place.geometry.location.lng());
@@ -152,6 +154,13 @@ function MapPage() {
         }));
     };
 
+    const handleOpenNowChange = () => {
+        setFilters(prevFilters => ({
+            ...prevFilters,
+            openNow: !prevFilters.openNow
+        }));
+    };
+
     const toggleSettingsDropdown = () => {
         setIsSettingsDropdownOpen(!isSettingsDropdownOpen);
     };
@@ -167,13 +176,9 @@ function MapPage() {
         }
     };
 
-    // Function to call OpenAI API for review summary using /chat/completions
     const generateAIReview = async (placeId) => {
         if (!selectedPlace) return;
 
-        console.log("Selected place for AI review: ", selectedPlace);
-
-        // Check if we have cached reviews
         const reviewsText = selectedPlace.reviews.slice(0, 20).map(r => r.text).join(" ");
         const currentReviewKey = placeId + '-' + reviewsText;
 
@@ -184,7 +189,6 @@ function MapPage() {
         }
 
         try {
-            // Updated API call to OpenAI's chat completions endpoint
             const response = await axios.post(
                 'https://api.openai.com/v1/chat/completions',
                 {
@@ -202,16 +206,13 @@ function MapPage() {
             );
 
             const aiReview = response.data.choices[0].message.content.trim();
-            console.log("Response from OpenAI:", response.data);
-
-            // Cache the generated AI review
             setAIReviewCache(prevCache => ({
                 ...prevCache,
                 [currentReviewKey]: aiReview
             }));
 
             setAIReviewText(aiReview);
-            setIsCachedReview(false); // This is a new review, not from cache
+            setIsCachedReview(false);
         } catch (error) {
             if (error.response) {
                 console.error("Error response:", error.response.data);
@@ -254,6 +255,9 @@ function MapPage() {
                                 {selectedPlace.photo && <img src={selectedPlace.photo} alt={selectedPlace.name} style={{ width: "100%", height: "auto", borderRadius: "8px" }} />}
                                 <h3>Rating: {selectedPlace.rating ? `${selectedPlace.rating} / 5` : "No rating available"}</h3>
                                 <h3>Price Level: {selectedPlace.price ? '💰'.repeat(selectedPlace.price) : "Price not available"}</h3>
+                                {selectedPlace.opening_hours && (
+                                    <p>Open Now: {selectedPlace.opening_hours.isOpen() ? 'Yes' : 'No'}</p>
+                                )}
                                 {selectedPlace.url && (
                                     <a href={selectedPlace.url} target="_blank" rel="noopener noreferrer" style={{
                                         display: "inline-block", width: "90%", marginTop: "10px", marginBottom: "10px", padding: "12px", backgroundColor: "#77806F", color: "#fff", borderRadius: "4px",
@@ -263,7 +267,6 @@ function MapPage() {
                                     </a>
                                 )}
 
-                                {/* Generate AI Review button */}
                                 <button onClick={() => generateAIReview(selectedPlace.placeId)}
                                     style={{
                                         display: "inline-block", width: "100%", padding: "12px", marginBottom: "10px", backgroundColor: "#A35A4A", color: "#fff", border: "none", borderRadius: "4px",
@@ -274,7 +277,6 @@ function MapPage() {
                                     GENERATE AI REVIEW
                                 </button>
 
-                                {/* AI Review Section */}
                                 {aiReviewText && (
                                     <div style={{ marginTop: "20px" }}>
                                         <h3>AI-Generated Review:</h3>
@@ -298,7 +300,6 @@ function MapPage() {
                                     />
                                 </Autocomplete>
 
-                                {/* Filters Section */}
                                 <div style={{ marginTop: "20px", marginBottom: "20px" }}>
                                     <h3>Filters</h3>
                                     <div style={{ marginBottom: "10px" }}>
@@ -325,27 +326,35 @@ function MapPage() {
                                         />
                                         <span>{filters.minRating} stars</span>
                                     </div>
+                                    <div style={{ marginTop: "10px" }}>
+                                        <label htmlFor="open-now">Open Now:</label>
+                                        <input
+                                            type="checkbox"
+                                            id="open-now"
+                                            checked={filters.openNow}
+                                            onChange={handleOpenNowChange}
+                                            style={{ marginLeft: "10px" }}
+                                        />
+                                    </div>
                                 </div>
 
-                                {/* Search Radius Component */}
-
                                 <label htmlFor="radius">Search Radius: {(filters.searchRadius / 1609.34).toFixed(2)} miles</label>
-                                    <input
-                                        type="range"
-                                        id="radius"
-                                        name="radius"
-                                        min="1"
-                                        max="50"
-                                        value={filters.searchRadius / 1609.34}
-                                        onChange={(e) => {
+                                <input
+                                    type="range"
+                                    id="radius"
+                                    name="radius"
+                                    min="1"
+                                    max="50"
+                                    value={filters.searchRadius / 1609.34}
+                                    onChange={(e) => {
                                         const radiusInMeters = Number(e.target.value) * 1609.34;
                                         setFilters((prevFilters) => ({
                                             ...prevFilters,
                                             searchRadius: radiusInMeters,
                                         }));
                                         setSearchRadius(radiusInMeters);
-                                        }}
-                                    />
+                                    }}
+                                />
 
                                 <div style={{ maxHeight: "calc(100vh - 350px)", overflowY: "auto", padding: "10px", boxSizing: "border-box" }}>
                                     <h3>Nearby Places</h3>
@@ -428,7 +437,6 @@ function MapPage() {
                                 fullscreenControl: false,
                             }}
                         >
-                            {/* Render bookstore markers */}
                             {filters.bookstores && bookstores.map((bookstore, index) => (
                                 <Marker
                                     key={`bookstore-${index}`}
@@ -444,7 +452,6 @@ function MapPage() {
                                 />
                             ))}
 
-                            {/* Render cafe markers */}
                             {filters.cafes && cafes.map((cafe, index) => (
                                 <Marker
                                     key={`cafe-${index}`}
@@ -460,7 +467,6 @@ function MapPage() {
                                 />
                             ))}
 
-                            {/* Display the search radius circle */}
                             <Circle
                             center={center}
                             radius={filters.searchRadius}
