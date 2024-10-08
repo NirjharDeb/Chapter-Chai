@@ -24,12 +24,12 @@ function MapPage() {
         maxPrice: 4,
         minRating: 0,
         searchRadius: 16093.4,
+        openNow: false // New filter for places open now
     });
     const [searchRadius, setSearchRadius] = useState(16093.4);
-    // Store AI review cache to prevent redundant API calls
     const [aiReviewCache, setAIReviewCache] = useState({});
-    const [aiReviewText, setAIReviewText] = useState(""); // Store AI review text
-    const [isCachedReview, setIsCachedReview] = useState(false); // Store cache status
+    const [aiReviewText, setAIReviewText] = useState(""); 
+    const [isCachedReview, setIsCachedReview] = useState(false); 
 
     const [originalCenter, setOriginalCenter] = useState({ lat, lng });
     const [zoom, setZoom] = useState(15);
@@ -40,7 +40,7 @@ function MapPage() {
         if (map && placesService) {
             handleSearch(lat, lng);
         }
-    }, [map, lat, lng, filters.searchRadius, filters.bookstores, filters.cafes, filters.minPrice, filters.maxPrice, filters.minRating]);
+    }, [map, lat, lng, filters]);
 
     const onPlaceChange = () => {
         const place = autocompleteref.current.getPlace();
@@ -54,14 +54,16 @@ function MapPage() {
         if (!placesService) return;
         const location = new window.google.maps.LatLng(lat, lng);
 
-        const searchPlaces = (keyword, setPlaces) => {
+        const searchPlaces = (keyword, setPlaces, applyPriceFilter = false) => {
             const request = {
                 keyword: keyword,
                 location,
                 radius: filters.searchRadius,
-                minPriceLevel: filters.minPrice,
-                maxPriceLevel: filters.maxPrice
+                minPriceLevel: applyPriceFilter ? filters.minPrice : undefined,
+                maxPriceLevel: applyPriceFilter ? filters.maxPrice : undefined,
+                openNow: filters.openNow // Use Google Places API's "openNow" filter
             };
+            Object.keys(request).forEach(key => request[key] === undefined && delete request[key]);
             placesService.nearbySearch(request, (results, status) => {
                 if (status === window.google.maps.places.PlacesServiceStatus.OK) {
                     const filteredResults = results.filter(place => place.rating >= filters.minRating);
@@ -75,13 +77,13 @@ function MapPage() {
         };
 
         if (filters.bookstores) {
-            searchPlaces("Bookstores", setBookstores);
+            searchPlaces("Bookstores", setBookstores, false);
         } else {
             setBookstores([]);
         }
 
         if (filters.cafes) {
-            searchPlaces("Cafe", setCafes);
+            searchPlaces("Cafe", setCafes, true);
         } else {
             setCafes([]);
         }
@@ -102,16 +104,17 @@ function MapPage() {
         placesService.getDetails({ placeId }, (place, status) => {
             if (status === window.google.maps.places.PlacesServiceStatus.OK) {
                 setSelectedPlace({
-                    placeId: placeId, // Store the placeId for future API calls
+                    placeId: placeId, 
                     name: place.name,
                     photo: place.photos ? place.photos[0].getUrl() : null,
                     rating: place.rating,
                     price: place.price_level,
                     url: place.url,
                     reviews: place.reviews || [],
+                    opening_hours: place.opening_hours // Store opening hours
                 });
-                setAIReviewText(""); // Reset AI review text
-                setIsCachedReview(false); // Reset cache status
+                setAIReviewText(""); 
+                setIsCachedReview(false); 
                 if (map) {
                     setLat(place.geometry.location.lat());
                     setLng(place.geometry.location.lng());
@@ -152,6 +155,13 @@ function MapPage() {
         }));
     };
 
+    const handleOpenNowChange = () => {
+        setFilters(prevFilters => ({
+            ...prevFilters,
+            openNow: !prevFilters.openNow
+        }));
+    };
+
     const toggleSettingsDropdown = () => {
         setIsSettingsDropdownOpen(!isSettingsDropdownOpen);
     };
@@ -168,16 +178,13 @@ function MapPage() {
     };
 
     const logout = () => {
-
+        // TODO
     };
 
     // Function to call OpenAI API for review summary using /chat/completions
     const generateAIReview = async (placeId) => {
         if (!selectedPlace) return;
 
-        console.log("Selected place for AI review: ", selectedPlace);
-
-        // Check if we have cached reviews
         const reviewsText = selectedPlace.reviews.slice(0, 20).map(r => r.text).join(" ");
         const currentReviewKey = placeId + '-' + reviewsText;
 
@@ -188,7 +195,6 @@ function MapPage() {
         }
 
         try {
-            // Updated API call to OpenAI's chat completions endpoint
             const response = await axios.post(
                 'https://api.openai.com/v1/chat/completions',
                 {
@@ -206,16 +212,13 @@ function MapPage() {
             );
 
             const aiReview = response.data.choices[0].message.content.trim();
-            console.log("Response from OpenAI:", response.data);
-
-            // Cache the generated AI review
             setAIReviewCache(prevCache => ({
                 ...prevCache,
                 [currentReviewKey]: aiReview
             }));
 
             setAIReviewText(aiReview);
-            setIsCachedReview(false); // This is a new review, not from cache
+            setIsCachedReview(false);
         } catch (error) {
             if (error.response) {
                 console.error("Error response:", error.response.data);
@@ -247,38 +250,39 @@ function MapPage() {
                         {selectedPlace ? (
                             <div style={{ padding: "10px" }}>
                                 <button onClick={goBackToResults} style={{
-                                    width: "90%", padding: "12px", marginBottom: "10px", backgroundColor: "#EFAE9F", color: "#fff", border: "none", borderRadius: "4px",
+                                    width: "90%", padding: "12px", marginBottom: "10px", backgroundColor: "#EFAE9F", color: "#FDFAF9", border: "none", borderRadius: "4px",
                                     transition: "background-color 0.3s ease", cursor: "pointer", fontSize: "18px", fontWeight: "bold", textAlign: "center"
                                 }}
-                                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#357AE8"}
-                                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#4285F4"}>
+                                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#A35A4A"}
+                                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#EFAE9F"}>
                                     BACK TO RESULTS
                                 </button>
                                 <h2>{selectedPlace.name}</h2>
                                 {selectedPlace.photo && <img src={selectedPlace.photo} alt={selectedPlace.name} style={{ width: "100%", height: "auto", borderRadius: "8px" }} />}
                                 <h3>Rating: {selectedPlace.rating ? `${selectedPlace.rating} / 5` : "No rating available"}</h3>
                                 <h3>Price Level: {selectedPlace.price ? '💰'.repeat(selectedPlace.price) : "Price not available"}</h3>
+                                {selectedPlace.opening_hours && (
+                                    <p>Open Now: {selectedPlace.opening_hours.isOpen() ? 'Yes' : 'No'}</p>
+                                )}
                                 {selectedPlace.url && (
                                     <a href={selectedPlace.url} target="_blank" rel="noopener noreferrer" style={{
-                                        display: "inline-block", marginTop: "10px", padding: "12px", backgroundColor: "#77806F", color: "#fff", borderRadius: "4px",
+                                        display: "inline-block", width: "90%", marginTop: "10px", marginBottom: "10px", padding: "12px", backgroundColor: "#77806F", color: "#FDFAF9", borderRadius: "4px",
                                         textDecoration: "none", transition: "background-color 0.3s ease", cursor: "pointer", fontSize: "18px", fontWeight: "bold", textAlign: "center"
                                     }}>
                                         VIEW ON GOOGLE MAPS
                                     </a>
                                 )}
 
-                                {/* Generate AI Review button */}
                                 <button onClick={() => generateAIReview(selectedPlace.placeId)}
                                     style={{
-                                        padding: "8px", marginTop: "10px", backgroundColor: "#F39C12", color: "#fff", border: "none", borderRadius: "4px",
-                                        transition: "background-color 0.3s ease", cursor: "pointer"
+                                        display: "inline-block", width: "100%", padding: "12px", marginBottom: "10px", backgroundColor: "#A35A4A", color: "#FDFAF9", border: "none", borderRadius: "4px",
+                                    transition: "background-color 0.3s ease", cursor: "pointer", fontSize: "18px", fontWeight: "bold", textAlign: "center"
                                     }}
-                                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#E67E22"}
-                                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#F39C12"}>
-                                    Generate AI Review
+                                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#EFAE9F"}
+                                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#A35A4A"}>
+                                    GENERATE AI REVIEW
                                 </button>
 
-                                {/* AI Review Section */}
                                 {aiReviewText && (
                                     <div style={{ marginTop: "20px" }}>
                                         <h3>AI-Generated Review:</h3>
@@ -296,17 +300,16 @@ function MapPage() {
                                 >
                                     <input
                                         type="text"
-                                        placeholder="   SEARCH   "
+                                        placeholder="SEARCH...   "
                                         className="search-input"
                                         style={{ padding: "8px", width: "100%", fontSize: "14px", border: "1px solid #dcdcdc", borderRadius: "4px", marginBottom: "10px", boxSizing: "border-box" }}
                                     />
                                 </Autocomplete>
 
-                                {/* Filters Section */}
                                 <div style={{ marginTop: "20px", marginBottom: "20px" }}>
                                     <h3>Filters</h3>
                                     <div style={{ marginBottom: "10px" }}>
-                                        <label htmlFor="price-range">Price Range:</label>
+                                        <label htmlFor="price-range">Price Range for Cafes:</label>
                                         <select id="price-range" onChange={handlePriceChange} value={`${filters.minPrice},${filters.maxPrice}`} style={{ width: "100%", padding: "5px" }}>
                                             <option value="0,4">Any</option>
                                             <option value="0,1">$</option>
@@ -323,42 +326,52 @@ function MapPage() {
                                             min="0"
                                             max="5"
                                             step="0.5"
+                                            color="#77806F"
                                             value={filters.minRating}
                                             onChange={handleRatingChange}
                                             style={{ width: "100%" }}
                                         />
                                         <span>{filters.minRating} stars</span>
                                     </div>
+                                    <div style={{ marginTop: "10px" }}>
+                                        <label htmlFor="open-now">Open Now:</label>
+                                        <input
+                                            type="checkbox"
+                                            id="open-now"
+                                            checked={filters.openNow}
+                                            onChange={handleOpenNowChange}
+                                            style={{ marginLeft: "10px" }}
+                                        />
+                                    </div>
                                 </div>
 
-                                {/* Search Radius Component */}
-
                                 <label htmlFor="radius">Search Radius: {(filters.searchRadius / 1609.34).toFixed(2)} miles</label>
-                                    <input
-                                        type="range"
-                                        id="radius"
-                                        name="radius"
-                                        min="1"
-                                        max="50"
-                                        value={filters.searchRadius / 1609.34}
-                                        onChange={(e) => {
+                                <input
+                                    type="range"
+                                    id="radius"
+                                    name="radius"
+                                    min="1"
+                                    max="50"
+                                    color="#77806F"
+                                    value={filters.searchRadius / 1609.34}
+                                    onChange={(e) => {
                                         const radiusInMeters = Number(e.target.value) * 1609.34;
                                         setFilters((prevFilters) => ({
                                             ...prevFilters,
                                             searchRadius: radiusInMeters,
                                         }));
                                         setSearchRadius(radiusInMeters);
-                                        }}
-                                    />
+                                    }}
+                                />
 
                                 <div style={{ maxHeight: "calc(100vh - 350px)", overflowY: "auto", padding: "10px", boxSizing: "border-box" }}>
                                     <h3>Nearby Places</h3>
                                     <div>
                                         <button onClick={toggleBookstoreDropdown} style={{
-                                            padding: "8px", width: "100%", textAlign: "left", backgroundColor: "#f1f1f1", border: "1px solid #ddd", borderRadius: "4px", marginBottom: "10px", cursor: "pointer", boxSizing: "border-box",
-                                            transition: "background-color 0.3s ease"
+                                            padding: "8px", width: "100%", textAlign: "center", backgroundColor: "#CA6D5E", border: "1px solid #ddd", borderRadius: "4px", marginBottom: "10px", cursor: "pointer", boxSizing: "border-box",
+                                            transition: "background-color 0.3s ease", fontSize: "18px", fontWeight: "bold", color: "#FDFAF9"
                                         }}>
-                                            Bookstores ({bookstores.length})
+                                            BOOKSTORES ({bookstores.length})
                                         </button>
                                         {isBookstoreDropdownOpen && (
                                             <ul style={{ listStyleType: "none", padding: "0", marginBottom: "10px", boxSizing: "border-box" }}>
@@ -385,10 +398,10 @@ function MapPage() {
 
                                     <div>
                                         <button onClick={toggleCafeDropdown} style={{
-                                            padding: "8px", width: "100%", textAlign: "left", backgroundColor: "#f1f1f1", border: "1px solid #ddd", borderRadius: "4px", marginBottom: "10px", cursor: "pointer", boxSizing: "border-box",
-                                            transition: "background-color 0.3s ease"
+                                            padding: "8px", width: "100%", textAlign: "center", backgroundColor: "#CA6D5E", border: "1px solid #ddd", borderRadius: "4px", marginBottom: "10px", cursor: "pointer", boxSizing: "border-box",
+                                            transition: "background-color 0.3s ease", fontSize: "18px", fontWeight: "bold", color: "#FDFAF9"
                                         }}>
-                                            Cafes ({cafes.length})
+                                            CAFES ({cafes.length})
                                         </button>
                                         {isCafeDropdownOpen && (
                                             <ul style={{ listStyleType: "none", padding: "0", marginBottom: "10px", boxSizing: "border-box" }}>
@@ -432,7 +445,6 @@ function MapPage() {
                                 fullscreenControl: false,
                             }}
                         >
-                            {/* Render bookstore markers */}
                             {filters.bookstores && bookstores.map((bookstore, index) => (
                                 <Marker
                                     key={`bookstore-${index}`}
@@ -448,7 +460,6 @@ function MapPage() {
                                 />
                             ))}
 
-                            {/* Render cafe markers */}
                             {filters.cafes && cafes.map((cafe, index) => (
                                 <Marker
                                     key={`cafe-${index}`}
@@ -464,14 +475,13 @@ function MapPage() {
                                 />
                             ))}
 
-                            {/* Display the search radius circle */}
                             <Circle
                             center={center}
                             radius={filters.searchRadius}
                             options={{
-                                fillColor: "#AA0000",
+                                fillColor: "#CA6D5E",
                                 fillOpacity: 0.2,
-                                strokeColor: "#AA0000",
+                                strokeColor: "#CA6D5E",
                                 strokeOpacity: 0.5,
                                 strokeWeight: 1,
                             }}
@@ -495,15 +505,14 @@ function MapPage() {
                         {isSettingsDropdownOpen && (
                             <ul style={{
                                 listStyleType: 'none',
-                                padding: '0',
                                 top: '50px',
                                 right: '10px',
-                                position: 'fixed', 
+                                position: 'fixed',
                                 boxSizing: 'border-box',
                                 backgroundColor: '#FDFAF9',
-                                border: '1px solid #ddd',
                                 borderRadius: '4px',
-                                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
+                                padding: '8px',
+                                boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
                             }}>
                                 <li style={{
                                     padding: '8px',
@@ -520,13 +529,6 @@ function MapPage() {
                                     transition: 'background-color 0.3s ease',
                                 }} onClick={resetMap}>
                                     <strong>Reset Map</strong>
-                                </li>
-                                <li style={{
-                                    padding: '8px',
-                                    cursor: 'pointer',
-                                    transition: 'background-color 0.3s ease',
-                                }} onClick={() => { /* TODO */ }}>
-                                    <strong>Refresh</strong>
                                 </li>
                             </ul>
                         )}
