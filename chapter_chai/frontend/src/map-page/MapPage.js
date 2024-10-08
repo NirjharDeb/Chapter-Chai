@@ -245,7 +245,7 @@ function MapPage() {
                         {selectedPlace ? (
                             <div style={{ padding: "10px" }}>
                                 <button onClick={goBackToResults} style={{
-                                    width: "90%", padding: "12px", marginBottom: "10px", backgroundColor: "#EFAE9F", color: "#fff", border: "none", borderRadius: "4px",
+                                    width: "90%", padding: "12px", marginBottom: "10px", backgroundColor: "#EFAE9F", color: "#FDFAF9", border: "none", borderRadius: "4px",
                                     transition: "background-color 0.3s ease", cursor: "pointer", fontSize: "18px", fontWeight: "bold", textAlign: "center"
                                 }}
                                     onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#A35A4A"}
@@ -261,7 +261,7 @@ function MapPage() {
                                 )}
                                 {selectedPlace.url && (
                                     <a href={selectedPlace.url} target="_blank" rel="noopener noreferrer" style={{
-                                        display: "inline-block", width: "90%", marginTop: "10px", marginBottom: "10px", padding: "12px", backgroundColor: "#77806F", color: "#fff", borderRadius: "4px",
+                                        display: "inline-block", width: "90%", marginTop: "10px", marginBottom: "10px", padding: "12px", backgroundColor: "#77806F", color: "#FDFAF9", borderRadius: "4px",
                                         textDecoration: "none", transition: "background-color 0.3s ease", cursor: "pointer", fontSize: "18px", fontWeight: "bold", textAlign: "center"
                                     }}>
                                         VIEW ON GOOGLE MAPS
@@ -270,7 +270,7 @@ function MapPage() {
 
                                 <button onClick={() => generateAIReview(selectedPlace.placeId)}
                                     style={{
-                                        display: "inline-block", width: "100%", padding: "12px", marginBottom: "10px", backgroundColor: "#A35A4A", color: "#fff", border: "none", borderRadius: "4px",
+                                        display: "inline-block", width: "100%", padding: "12px", marginBottom: "10px", backgroundColor: "#A35A4A", color: "#FDFAF9", border: "none", borderRadius: "4px",
                                     transition: "background-color 0.3s ease", cursor: "pointer", fontSize: "18px", fontWeight: "bold", textAlign: "center"
                                     }}
                                     onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#EFAE9F"}
@@ -321,6 +321,7 @@ function MapPage() {
                                             min="0"
                                             max="5"
                                             step="0.5"
+                                            color="#77806F"
                                             value={filters.minRating}
                                             onChange={handleRatingChange}
                                             style={{ width: "100%" }}
@@ -346,6 +347,7 @@ function MapPage() {
                                     name="radius"
                                     min="1"
                                     max="50"
+                                    color="#77806F"
                                     value={filters.searchRadius / 1609.34}
                                     onChange={(e) => {
                                         const radiusInMeters = Number(e.target.value) * 1609.34;
@@ -362,7 +364,7 @@ function MapPage() {
                                     <div>
                                         <button onClick={toggleBookstoreDropdown} style={{
                                             padding: "8px", width: "100%", textAlign: "center", backgroundColor: "#CA6D5E", border: "1px solid #ddd", borderRadius: "4px", marginBottom: "10px", cursor: "pointer", boxSizing: "border-box",
-                                            transition: "background-color 0.3s ease", fontSize: "18px", fontWeight: "bold", color: "#fff"
+                                            transition: "background-color 0.3s ease", fontSize: "18px", fontWeight: "bold", color: "#FDFAF9"
                                         }}>
                                             BOOKSTORES ({bookstores.length})
                                         </button>
@@ -392,7 +394,7 @@ function MapPage() {
                                     <div>
                                         <button onClick={toggleCafeDropdown} style={{
                                             padding: "8px", width: "100%", textAlign: "center", backgroundColor: "#CA6D5E", border: "1px solid #ddd", borderRadius: "4px", marginBottom: "10px", cursor: "pointer", boxSizing: "border-box",
-                                            transition: "background-color 0.3s ease", fontSize: "18px", fontWeight: "bold", color: "#fff"
+                                            transition: "background-color 0.3s ease", fontSize: "18px", fontWeight: "bold", color: "#FDFAF9"
                                         }}>
                                             CAFES ({cafes.length})
                                         </button>
@@ -472,9 +474,9 @@ function MapPage() {
                             center={center}
                             radius={filters.searchRadius}
                             options={{
-                                fillColor: "#AA0000",
+                                fillColor: "#CA6D5E",
                                 fillOpacity: 0.2,
-                                strokeColor: "#AA0000",
+                                strokeColor: "#CA6D5E",
                                 strokeOpacity: 0.5,
                                 strokeWeight: 1,
                             }}
