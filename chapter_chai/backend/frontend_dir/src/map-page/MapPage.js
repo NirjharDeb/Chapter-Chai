@@ -4,7 +4,6 @@ import axios from 'axios';
 
 const libraries = ["places"];
 // Hardcoded API key (for testing only; replace it securely in production)
-const OPENAI_API_KEY = process.env.REACT_APP_OPENAI_API_KEY;
 
 function MapPage() {
     const [lat, setLat] = useState(33.77705);
@@ -14,6 +13,8 @@ function MapPage() {
     const [placesService, setPlacesService] = useState(null);
     const [bookstores, setBookstores] = useState([]);
     const [cafes, setCafes] = useState([]);
+    const [maxBookstores, setMaxBookstores] = useState(10);
+    const [maxCafes, setMaxCafes] = useState(10);
     const [isBookstoreDropdownOpen, setIsBookstoreDropdownOpen] = useState(false);
     const [isCafeDropdownOpen, setIsCafeDropdownOpen] = useState(false);
     const [selectedPlace, setSelectedPlace] = useState(null);
@@ -127,14 +128,6 @@ function MapPage() {
         }
     };
 
-    const toggleBookstoreDropdown = () => {
-        setIsBookstoreDropdownOpen(!isBookstoreDropdownOpen);
-    };
-
-    const toggleCafeDropdown = () => {
-        setIsCafeDropdownOpen(!isCafeDropdownOpen);
-    };
-
     const showPlaceDetails = (placeId) => {
         setOriginalCenter({ lat, lng });
         setZoom(zoom);
@@ -200,10 +193,6 @@ function MapPage() {
         }));
     };
 
-    const toggleSettingsDropdown = () => {
-        setIsSettingsDropdownOpen(!isSettingsDropdownOpen);
-    };
-
     const resetMap = () => {
         setSelectedPlace(null);
         if (map) {
@@ -238,7 +227,7 @@ function MapPage() {
                 },
                 {
                     headers: {
-                        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+                        'Authorization': `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
                         'Content-Type': 'application/json'
                     }
                 }
@@ -339,7 +328,7 @@ function MapPage() {
                                     />
                                 </Autocomplete>
 
-                                <div style={{ marginTop: "20px", marginBottom: "20px" }}>
+                                <div style={{ marginTop: "20px", marginBottom: "10px" }}>
                                     <h3>Filters</h3>
                                     <div style={{ marginBottom: "10px" }}>
                                         <label htmlFor="price-range">Price Range for Cafes:</label>
@@ -376,6 +365,32 @@ function MapPage() {
                                             style={{ marginLeft: "10px" }}
                                         />
                                     </div>
+                                    <div style={{display: "flex", justifyContent: "space-around", marginTop: "5px"}}>
+                                        <div style={{display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center"}}>
+                                            <label htmlFor="max-books">Max Bookstores:</label>
+                                            <input
+                                                type="number"
+                                                id="max-books"
+                                                defaultValue={maxBookstores}
+                                                min={0}
+                                                max={25}
+                                                onChange={(e) => setMaxBookstores(e.target.value)}
+                                                style={{width: "50px", textAlign: "center"}}
+                                            />
+                                        </div>
+                                        <div style={{display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center"}}>
+                                            <label htmlFor="max-cafes">Max Cafes:</label>
+                                            <input
+                                                type="number"
+                                                id="max-cafes"
+                                                defaultValue={maxCafes}
+                                                min={0}
+                                                max={25}
+                                                onChange={(e) => setMaxCafes(e.target.value)}
+                                                style={{width: "50px", textAlign: "center"}}
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <label htmlFor="radius">Search Radius: {(filters.searchRadius / 1609.34).toFixed(2)} miles</label>
@@ -392,19 +407,19 @@ function MapPage() {
                                 <div style={{ maxHeight: "calc(100vh - 350px)", overflowY: "auto", padding: "10px", boxSizing: "border-box", textAlign: "center" }}>
                                     <h3>📚 🍵 NEARBY PLACES 🍵 📚</h3>
                                     <div>
-                                        <button onClick={toggleBookstoreDropdown} style={{
+                                        <button onClick={() => setIsBookstoreDropdownOpen(!isBookstoreDropdownOpen)} style={{
                                             padding: "8px", width: "100%", textAlign: "center", backgroundColor: "#CA6D5E", border: "1px solid #ddd", borderRadius: "4px", marginBottom: "10px", cursor: "pointer", boxSizing: "border-box",
                                             transition: "background-color 0.3s ease", fontSize: "18px", fontWeight: "bold", color: "#FDFAF9"
                                         }}>
-                                            📚 BOOKSTORES ({bookstores.length})
+                                            📚 BOOKSTORES ({Math.min(bookstores.length, maxBookstores)})
                                         </button>
                                         {isBookstoreDropdownOpen && (
                                             <ul style={{ listStyleType: "none", padding: "0", marginBottom: "10px", boxSizing: "border-box" }}>
-                                                {bookstores.map((place, index) => (
+                                                {bookstores.slice(0, Math.min(bookstores.length, maxBookstores)).map((place, index) => (
                                                     <li key={index} style={{
                                                         padding: "8px", borderBottom: "1px solid #ddd", cursor: "pointer",
                                                         transition: "background-color 0.3s ease",
-                                                        backgroundColor: "#FDFAF9",
+                                                        backgroundColor: "#FDFAF9"
                                                     }}
                                                         onClick={() => showPlaceDetails(place.place_id)}
                                                         onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"}
@@ -422,19 +437,19 @@ function MapPage() {
                                     </div>
 
                                     <div>
-                                        <button onClick={toggleCafeDropdown} style={{
-                                            padding: "8px", width: "100%", textAlign: "center", backgroundColor: "#CA6D5E", border: "none", borderRadius: "4px", marginBottom: "10px", cursor: "pointer", boxSizing: "border-box",
+                                        <button onClick={() => setIsCafeDropdownOpen(!isCafeDropdownOpen)} style={{
+                                            padding: "8px", width: "100%", textAlign: "center", backgroundColor: "#CA6D5E", border: "1px solid #ddd", borderRadius: "4px", marginBottom: "10px", cursor: "pointer", boxSizing: "border-box",
                                             transition: "background-color 0.3s ease", fontSize: "18px", fontWeight: "bold", color: "#FDFAF9"
                                         }}>
-                                            🍵 CAFES ({cafes.length})
+                                            🍵 CAFES ({Math.min(cafes.length, maxCafes)})
                                         </button>
                                         {isCafeDropdownOpen && (
                                             <ul style={{ listStyleType: "none", padding: "0", marginBottom: "10px", boxSizing: "border-box" }}>
-                                                {cafes.map((place, index) => (
+                                                {cafes.slice(0, Math.min(cafes.length, maxCafes)).map((place, index) => (
                                                     <li key={index} style={{
                                                         padding: "8px", borderBottom: "1px solid #ddd", cursor: "pointer",
                                                         transition: "background-color 0.3s ease",
-                                                        backgroundColor: "#FDFAF9",
+                                                        backgroundColor: "#FDFAF9"
                                                     }}
                                                         onClick={() => showPlaceDetails(place.place_id)}
                                                         onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"}
@@ -470,7 +485,7 @@ function MapPage() {
                                 fullscreenControl: false,
                             }}
                         >
-                            {filters.bookstores && bookstores.map((bookstore, index) => (
+                            {filters.bookstores && bookstores.slice(0, Math.min(bookstores.length, maxBookstores)).map((bookstore, index) => (
                                 <Marker
                                     key={`bookstore-${index}`}
                                     position={{
@@ -485,7 +500,7 @@ function MapPage() {
                                 />
                             ))}
 
-                            {filters.cafes && cafes.map((cafe, index) => (
+                            {filters.cafes && cafes.slice(0, Math.min(cafes.length, maxCafes)).map((cafe, index) => (
                                 <Marker
                                     key={`cafe-${index}`}
                                     position={{
@@ -523,7 +538,7 @@ function MapPage() {
                             }}
                             src='https://cdn.discordapp.com/attachments/1278357706666676228/1292642631335018536/settings.png?ex=67047ac3&is=67032943&hm=3dad938f24e6f0417e993d29777ad6513942bc249096c13abf0c307751178986&'
                             alt='Settings'
-                            onClick={toggleSettingsDropdown} 
+                            onClick={() => setIsSettingsDropdownOpen(!isSettingsDropdownOpen)} 
                             onMouseOver={(e) => e.currentTarget.style.opacity = "0.7"}
                             onMouseOut={(e) => e.currentTarget.style.opacity = "1"}
                         />
