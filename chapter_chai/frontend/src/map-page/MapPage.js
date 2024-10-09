@@ -419,7 +419,7 @@ function MapPage() {
                                                     <li key={index} style={{
                                                         padding: "8px", borderBottom: "1px solid #ddd", cursor: "pointer",
                                                         transition: "background-color 0.3s ease",
-                                                        backgroundColor: "#FDFAF9", textAlign: "left"
+                                                        backgroundColor: "#FDFAF9"
                                                     }}
                                                         onClick={() => showPlaceDetails(place.place_id)}
                                                         onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"}
@@ -449,7 +449,7 @@ function MapPage() {
                                                     <li key={index} style={{
                                                         padding: "8px", borderBottom: "1px solid #ddd", cursor: "pointer",
                                                         transition: "background-color 0.3s ease",
-                                                        backgroundColor: "#FDFAF9", textAlign: "left"
+                                                        backgroundColor: "#FDFAF9"
                                                     }}
                                                         onClick={() => showPlaceDetails(place.place_id)}
                                                         onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"}
