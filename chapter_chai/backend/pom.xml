@@ -58,7 +58,7 @@
 				<artifactId>frontend-maven-plugin</artifactId>
 				<version>1.15.1</version>
 				<configuration>
-					<workingDirectory>../frontend</workingDirectory>
+					<workingDirectory>frontend</workingDirectory>
 				</configuration>
 				<executions>
 					<execution>
@@ -79,6 +79,16 @@
 						</goals>
 						<configuration>
 							<arguments>install</arguments>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>npm dedupe</id>
+						<goals>
+							<goal>npm</goal>
+						</goals>
+						<configuration>
+							<arguments>dedupe</arguments>
 						</configuration>
 					</execution>
 					
@@ -110,7 +120,7 @@
 							<outputDirectory>${project.build.directory}/classes/static/</outputDirectory>
 							<resources>
 								<resource>
-									<directory>../frontend/build</directory>
+									<directory>frontend/build</directory>
 								</resource>
 							</resources>
 						</configuration>
@@ -121,6 +131,12 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+
+			<plugin>
+				<groupId>com.google.cloud.tools</groupId>
+				<artifactId>appengine-maven-plugin</artifactId>
+				<version>2.3.0</version>
 			</plugin>
 		</plugins>
 	</build>
