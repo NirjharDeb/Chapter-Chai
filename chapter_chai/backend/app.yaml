@@ -1,0 +1,4 @@
+runtime: java21
+env: standard
+service: default
+entrypoint: java -jar target/webapp-0.0.1-SNAPSHOT.jar

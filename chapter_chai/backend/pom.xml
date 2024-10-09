@@ -58,7 +58,7 @@
 				<artifactId>frontend-maven-plugin</artifactId>
 				<version>1.15.1</version>
 				<configuration>
-					<workingDirectory>../frontend</workingDirectory>
+					<workingDirectory>./frontend_dir</workingDirectory>
 				</configuration>
 				<executions>
 					<execution>
@@ -110,7 +110,7 @@
 							<outputDirectory>${project.build.directory}/classes/static/</outputDirectory>
 							<resources>
 								<resource>
-									<directory>../frontend/build</directory>
+									<directory>./frontend_dir/build</directory>
 								</resource>
 							</resources>
 						</configuration>
