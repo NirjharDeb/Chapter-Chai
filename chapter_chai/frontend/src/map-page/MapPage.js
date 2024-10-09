@@ -4,7 +4,6 @@ import axios from 'axios';
 
 const libraries = ["places"];
 // Hardcoded API key (for testing only; replace it securely in production)
-const OPENAI_API_KEY = 'test';
 
 function MapPage() {
     const [lat, setLat] = useState(33.77705);
@@ -228,7 +227,7 @@ function MapPage() {
                 },
                 {
                     headers: {
-                        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+                        'Authorization': `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
                         'Content-Type': 'application/json'
                     }
                 }
@@ -420,7 +419,7 @@ function MapPage() {
                                                     <li key={index} style={{
                                                         padding: "8px", borderBottom: "1px solid #ddd", cursor: "pointer",
                                                         transition: "background-color 0.3s ease",
-                                                        backgroundColor: "#FDFAF9",
+                                                        backgroundColor: "#FDFAF9"
                                                     }}
                                                         onClick={() => showPlaceDetails(place.place_id)}
                                                         onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"}
@@ -439,7 +438,7 @@ function MapPage() {
 
                                     <div>
                                         <button onClick={() => setIsCafeDropdownOpen(!isCafeDropdownOpen)} style={{
-                                            padding: "8px", width: "100%", textAlign: "center", backgroundColor: "#CA6D5E", border: "none", borderRadius: "4px", marginBottom: "10px", cursor: "pointer", boxSizing: "border-box",
+                                            padding: "8px", width: "100%", textAlign: "center", backgroundColor: "#CA6D5E", border: "1px solid #ddd", borderRadius: "4px", marginBottom: "10px", cursor: "pointer", boxSizing: "border-box",
                                             transition: "background-color 0.3s ease", fontSize: "18px", fontWeight: "bold", color: "#FDFAF9"
                                         }}>
                                             🍵 CAFES ({Math.min(cafes.length, maxCafes)})
@@ -450,7 +449,7 @@ function MapPage() {
                                                     <li key={index} style={{
                                                         padding: "8px", borderBottom: "1px solid #ddd", cursor: "pointer",
                                                         transition: "background-color 0.3s ease",
-                                                        backgroundColor: "#FDFAF9",
+                                                        backgroundColor: "#FDFAF9"
                                                     }}
                                                         onClick={() => showPlaceDetails(place.place_id)}
                                                         onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"}
